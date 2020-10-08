@@ -4,17 +4,29 @@ import csv
 import numpy as np
 
 
-def load_csv_data(data_path, sub_sample=False):
+def load_csv_data(data_path, sub_sample=False, parameter='PRI_jet_num'):
     """Loads data and returns y (class labels), tX (features) and ids (event ids)"""
-    y = np.genfromtxt(data_path, delimiter=",", skip_header=1, dtype=str, usecols=1)
+    y = np.genfromtxt(data_path, delimiter=",",
+                      skip_header=1, dtype=str, usecols=1)
     x = np.genfromtxt(data_path, delimiter=",", skip_header=1)
     ids = x[:, 0].astype(np.int)
     input_data = x[:, 2:]
+    headers = np.genfromtxt(...)[2:]
+    yb = np.ones(len(y))
+    yb[np.where(y == 'b')] = -1
+
+    parameter_id = np.where(headers == parameter)[0]
+
+    print("loading done")
+    values = set(x[:, parameter_id].reshape(-1,))  # [0, 1, 2, 3]
+    data = [[i for i in zip(zip(input_data, yb), ids)
+             if i[0][0][parameter_id] == x] for x in values]
+    ids = [np.array([i[1] for i in x]) for x in data]
+    input_data = [np.array([i[0][0] for i in x])for x in data]
+    yb = [np.array([i[0][1] for i in x].reshape(-1, 1))for x in data]
 
     # convert class labels from strings to binary (-1,1)
-    yb = np.ones(len(y))
-    yb[np.where(y=='b')] = -1
-    
+
     # sub-sample
     if sub_sample:
         yb = yb[::50]
@@ -29,7 +41,7 @@ def predict_labels(weights, data):
     y_pred = np.dot(data, weights)
     y_pred[np.where(y_pred <= 0)] = -1
     y_pred[np.where(y_pred > 0)] = 1
-    
+
     return y_pred
 
 
@@ -45,4 +57,4 @@ def create_csv_submission(ids, y_pred, name):
         writer = csv.DictWriter(csvfile, delimiter=",", fieldnames=fieldnames)
         writer.writeheader()
         for r1, r2 in zip(ids, y_pred):
-            writer.writerow({'Id':int(r1),'Prediction':int(r2)})
+            writer.writerow({'Id': int(r1), 'Prediction': int(r2)})
