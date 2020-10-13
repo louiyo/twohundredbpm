@@ -1,4 +1,5 @@
 from cost import *
+from proj1_helpers import *
 import numpy as np
 
 
@@ -27,11 +28,12 @@ def batch_iter(y, tx, batch_size, num_batches=1, shuffle=True):
         if start_index != end_index:
             yield shuffled_y[start_index:end_index], shuffled_tx[start_index:end_index]
 
-def standardize(x):
-    """Standardize the original data set."""
-    mean_x = np.mean(x)
-    x = x - mean_x
-    std_x = np.std(x)
-    x = x / std_x
+def init_weights(tX, seed = 12):
+    """
+        Initialize the weights needed as input for computing the models.
+    """
+    np.random.seed(seed)
+    return np.random.rand(tX.shape()[1],1)
 
-    return x, mean_x, std_x
+def compute_accuracy(y, x, w):
+    return mean(y == predict_labels(y, w, w))
