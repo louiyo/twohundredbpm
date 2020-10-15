@@ -36,11 +36,17 @@ def remove_non_defined_columns(data):
         Remove the columns where all examples from a specific PRI_jet_num have
         non defined values (nan).
     """
-    # data[data == -999] = np.nan
-    non_defined_constant = -999
-    new_data = [np.delete(data[PRI_jet_num], data[PRI_jet_num] == non_defined_constant, axis = 1)
-                   for PRI_jet_num in range(len(data))]
+    
+    for jet_num in range(len(data)):
 
-    # [np.delete(isnan(data[PRI_jet_num])) for PRI_jet_num in range(0,4)]
+        index = 0
+        idx = []
 
-    return new_data
+        for column in data[jet_num][0]:
+            if(column == -999.0):
+                idx.append(index)
+            index += 1
+
+        X[jet_num] = np.delete(data[jet_num], idx, axis=1)
+
+    return data
