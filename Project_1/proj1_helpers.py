@@ -17,26 +17,20 @@ def load_csv_data(data_path, sub_sample=False, parameter='PRI_jet_num'):
     yb[np.where(y == 'b')] = -1
 
     parameter_id = np.where(headers == parameter)[0]
-    print(parameter_id)
-
-    print("loading of csv file done")
 
     values = set(input_values[:, parameter_id].reshape(-1,))  # [0, 1, 2, 3]
     print(len(values))
-    print("loaded set")
 
     data = [[i for i in zip(zip(input_values, yb), ids)
              if i[0][0][parameter_id] == x] for x in values]
 
-    print("loaded big array")
-
     ids = [np.array([i[1] for i in x]) for x in data]
-    print("loaded ids array")
+    
     input_data = [np.array([i[0][0] for i in x])for x in data]
-    print("loaded input data array")
+    
 
     yb = [np.array([i[0][1] for i in x]).reshape(-1, 1) for x in data]
-    print("loaded y array")
+    
 
     # sub-sample
     if sub_sample:
