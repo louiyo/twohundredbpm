@@ -2,29 +2,33 @@ from implementations import *
 from helpers import init_weights
 import numpy as np
 
+
 def build_poly_x(x, degree):
     """
         Polynomial basis function for data x, from j = 0 to j = degree.
     """
-    M = np.ones((len(x),1))
-    for j in range(1, degree + 1):
-        M = np.c_[M, np.power(x, j)]
+    M = x
+    for j in range(2, degree + 1):
+        M = np.c_[M, x**j]
     return M
+
 
 def build_poly_tx(tx, degree):
     """
         Polynomial basis function for data x, from j = 0 to j = degree.
     """
     (rows, cols) = tx.shape
-    # poly_tx = build_poly_x(tx[:,0],degree)
 
-    for id in range(cols):
-        poly_tx = np.c_[poly_tx, build_poly_x(poly_tx[:,id], degree)]
-    poly_tx = np.c_[np.ones((rows,1)), poly_tx]
+    poly_tx = build_poly_x(tx[:, 0], degree)
+
+    for id in range(1, cols):
+        poly_tx = np.c_[poly_tx, build_poly_x(poly_tx[:, id], degree)]
+    poly_tx = np.c_[np.ones((rows, 1)), poly_tx]
 
     return poly_tx
 
-def build_index(y, k_fold, seed = 12):
+
+def build_index(y, k_fold, seed=12):
     """
         Building the the indices for k-fold cross validation.
     """
@@ -38,6 +42,7 @@ def build_index(y, k_fold, seed = 12):
 
     return np.array(index)
 
+
 def compute_model(y, x, w0, k, indices, gamma_, lambda_, max_iters, model):
     """
         Compute the weights of the model using the specified model.
@@ -47,7 +52,7 @@ def compute_model(y, x, w0, k, indices, gamma_, lambda_, max_iters, model):
     y_test = y[indices[k]]
 
     # Removing the test examples (rows) from the indices :
-    indices = (np.delete(indices, k, axis = 0)).flatten()
+    indices = (np.delete(indices, k, axis=0)).flatten()
 
     x_train = x[indices]
     y_train = y[indices]
@@ -65,7 +70,7 @@ def compute_model(y, x, w0, k, indices, gamma_, lambda_, max_iters, model):
         w_, loss_ = logistic_regression()
     elif model == "reg_logistic_regression":
         w_, loss_ = reg_logistic_regression()
-    else :
+    else:
         raise NameError("Invalid model : []".format(model))
 
     # Compute the accuracy of the model with the validation dataset :
@@ -73,14 +78,15 @@ def compute_model(y, x, w0, k, indices, gamma_, lambda_, max_iters, model):
 
     return w_, acc_
 
-def cross_validation(y, tX, w0, model = "least_squares", k_fold = 12, degrees = [1], lambdas = [0], gammas = [0], max_iters = 50):
+
+def cross_validation(y, tX, w0, model="least_squares", k_fold=12, degrees=[1], lambdas=[0], gammas=[0], max_iters=50):
     """
         Implementing cross_validation on a given model.
     """
     indices = build_index(y, k_fold)
     performances = []
     accuracy_model = 0.0
-    best_parameters = (0,0,0)
+    best_parameters = (0, 0, 0)
 
     for degree_ in degrees:
         tX_ = build_poly_tx(tX, degree)
@@ -93,16 +99,18 @@ def cross_validation(y, tX, w0, model = "least_squares", k_fold = 12, degrees = 
 
                 for k in range(k_fold):
                     w, acc = compute_model(y, tX_, w0_, k, indices, gamma_,
-                             lambda_, max_iters, model)
+                                           lambda_, max_iters, model)
 
                     acc_.append(acc)
                     w_.append(w)
 
-                mean_weights = np.mean(w_, axis = 0)
+                mean_weights = np.mean(w_, axis=0)
                 mean_accuracy = np.mean(acc_)
-                performances.append((degree_, lambda_, gamma_, mean_weights, mean_accuracy))
+                performances.append(
+                    (degree_, lambda_, gamma_, mean_weights, mean_accuracy))
 
-                print("Model specs : degree = [], lambda = [], mean weights = [], mean accuracy = [],".format(degree_, lambda_, gamma_,mean_weights, mean_accuracy))
+                print("Model specs : degree = [], lambda = [], mean weights = [], mean accuracy = [],".format(
+                    degree_, lambda_, gamma_, mean_weights, mean_accuracy))
 
                 # Implement best model : print the hyper-paramaters values of the best model:
                 if mean_accuracy > accuracy_model:

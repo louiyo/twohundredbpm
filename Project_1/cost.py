@@ -6,6 +6,7 @@ def compute_mse(y, tx, w):
     """
     Compute loss with the mean square error
     """
+    N = len(y)
     e = y - tx.dot(w)
     loss = np.sum(e**2, axis=0) / (2*N)
 

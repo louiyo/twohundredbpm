@@ -34,8 +34,8 @@ def init_weights(tX, seed=12):
         Initialize the weights needed as input for computing the models.
     """
     np.random.seed(seed)
-    return np.random.rand(tX.shape()[1], 1)
+    return np.random.rand(tX.shape[1], 1)
 
 
 def compute_accuracy(y, x, w):
-    return mean(y == predict_labels(y, x, w))
+    return np.mean(y == predict_labels(w, x))

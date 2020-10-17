@@ -2,6 +2,7 @@ from cost import *
 from gradients import *
 import numpy as np
 
+
 def least_squares_GD(y, tx, initial_w, max_iters, gamma):
     # Linear regression using gradient descent
     w = initial_w
@@ -20,9 +21,9 @@ def least_squares_SGD(y, tx, initial_w, max_iters, gamma):
 
     for n_iter in range(max_iters):
         for minibatch_y, minibatch_tx in batch_iter(y, tx, batch_size):
-            gradient = compute_gradient(minibatch_y,minibatch_tx,w)
+            gradient = compute_gradient(minibatch_y, minibatch_tx, w)
 
-        loss = compute_mse(y,tx, w)
+        loss = compute_mse(y, tx, w)
         w -= gamma*gradient
 
     return w, loss
@@ -30,7 +31,7 @@ def least_squares_SGD(y, tx, initial_w, max_iters, gamma):
 
 def least_squares(y, tx):
     # Least squares regression using normal equations
-    w = np.linalg.solve(tx.T.dot(tx),tx.T.dot(y))
+    w = np.linalg.solve(tx.T.dot(tx), tx.T.dot(y))
     loss = compute_mse(y, tx, w)
 
     return w, loss
@@ -38,7 +39,7 @@ def least_squares(y, tx):
 
 def ridge_regression(y, tx, lambda_):
     # Ridge regression using normal equations
-    (nrows, ncols) = tx.shape()
+    (nrows, ncols) = tx.shape
     regularizer = np.ones(ncols) + lambda_*(2*nrows)
     w = np.linalg.solve(tx.T.dot(tx) + regularizer, tx.T.dot(y))
     loss = compute_mse(y, tx, w)
