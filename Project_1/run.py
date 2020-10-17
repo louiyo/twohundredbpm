@@ -10,7 +10,6 @@ from implementations import *
 from cost import *
 from gradients import *
 from preprocessing import *
-from feature_engineering import *
 
 # If needed for initializing the weights :
 # seed = 12
@@ -18,13 +17,15 @@ from feature_engineering import *
 # Loading of the train and test data :
 print('Loading train and test Data')
 
-DATA_TRAIN_PATH = 'Data/train.csv' # TODO: download train data and supply path here
+# TODO: download train data and supply path here
+DATA_TRAIN_PATH = 'Data/train.csv'
 y, tX, ids = load_csv_data(DATA_TRAIN_PATH)
 
-DATA_TEST_PATH = 'Data/test.csv' # TODO: download train data and supply path here
+DATA_TEST_PATH = 'Data/test.csv'  # TODO: download train data and supply path here
 y_test, tX_test, ids_test = load_csv_data(DATA_TEST_PATH)
 
-OUTPUT_PATH = 'Data/output.csv' # TODO: fill in desired name of output file for submission
+# TODO: fill in desired name of output file for submission
+OUTPUT_PATH = 'Data/output.csv'
 
 # Setting hyper-parameters values :
 degrees = [5, 10, 12, 15]
@@ -68,13 +69,13 @@ for idx in range(len(tX)):
     w_, loss_ = ridge_regression(train_y_jet_, tX_train_poly, lambdas[idx])
 
     accuracy_ = compute_accuracy(train_y_jet_, tX_train_poly, w_)
-    print('The accuracy of model [] is equal to []'.format(int(idx),accuracy_))
+    print('The accuracy of model [] is equal to []'.format(int(idx), accuracy_))
 
     # Computing test accuracy : (To be changed -> à mettre dans une nouvelle boucle)
     y_pred_ = predict_labels(w_, tX_test_poly)
     y_pred[test_x_jet_[1] == idx] = y_pred_.flatten()
 
-    test_acc = np.mean(y_pred == y_test, axis = 0)
+    test_acc = np.mean(y_pred == y_test, axis=0)
     print('The accuracy over the test data is equal to []'.format(test_acc))
 
 create_csv_submission(ids_test, y_pred, OUTPUT_PATH)

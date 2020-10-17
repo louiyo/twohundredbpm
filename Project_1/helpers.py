@@ -28,12 +28,14 @@ def batch_iter(y, tx, batch_size, num_batches=1, shuffle=True):
         if start_index != end_index:
             yield shuffled_y[start_index:end_index], shuffled_tx[start_index:end_index]
 
-def init_weights(tX, seed = 12):
+
+def init_weights(tX, seed=12):
     """
         Initialize the weights needed as input for computing the models.
     """
     np.random.seed(seed)
-    return np.random.rand(tX.shape()[1],1)
+    return np.random.rand(tX.shape()[1], 1)
+
 
 def compute_accuracy(y, x, w):
-    return mean(y == predict_labels(y, w, w))
+    return mean(y == predict_labels(y, x, w))

@@ -1,25 +1,28 @@
 from gradients import *
 import numpy as np
 
+
 def compute_mse(y, tx, w):
     """
     Compute loss with the mean square error
     """
     e = y - tx.dot(w)
-    loss = np.sum(e**, axis = 0) / (2*N)
+    loss = np.sum(e**2, axis=0) / (2*N)
 
     return loss
+
 
 def compute_mae(y, tx, w):
     """
     Compute loss with the mean absolute error
     """
     e = y - tx.dot(w)
-    loss = np.sum(abs(e), axis = 0) / (2*N)
+    loss = np.sum(abs(e), axis=0) / (2*N)
 
     return loss
 
-def compute_log_likelihooh(y, tx, w, lambda_ = 0):
+
+def compute_log_likelihooh(y, tx, w, lambda_=0):
     """
         Compute the negative log likelihood of the data
         lambda_ : if = 0 it computes it for logistic regression, else it is
