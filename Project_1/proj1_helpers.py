@@ -9,6 +9,7 @@ def load_csv_data(data_path, sub_sample=False, parameter='PRI_jet_num'):
     y = np.genfromtxt(data_path, delimiter=",",
                       skip_header=1, dtype=str, usecols=1)
     x = np.genfromtxt(data_path, delimiter=",", skip_header=1)
+
     ids = x[:, 0].astype(np.int)
     input_values = x[:, 2:]
     headers = np.genfromtxt(data_path, delimiter=",",
@@ -25,12 +26,10 @@ def load_csv_data(data_path, sub_sample=False, parameter='PRI_jet_num'):
              if i[0][0][parameter_id] == x] for x in values]
 
     ids = [np.array([i[1] for i in x]) for x in data]
-    
+
     input_data = [np.array([i[0][0] for i in x])for x in data]
-    
 
     yb = [np.array([i[0][1] for i in x]).reshape(-1, 1) for x in data]
-    
 
     # sub-sample
     if sub_sample:

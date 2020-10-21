@@ -3,6 +3,13 @@ from helpers import init_weights
 import numpy as np
 
 
+def polynomial_expansion(x, degree):
+    poly = np.ones((len(x), 1))
+    for deg in range(1, degree + 1):
+        poly = np.c_[poly, np.power(x, deg)]
+    return poly
+
+
 def build_poly_x(x, degree):
     """
         Polynomial basis function for data x, from j = 0 to j = degree.
@@ -109,7 +116,7 @@ def cross_validation(y, tX, w0, model="least_squares", k_fold=12, degrees=[1], l
                 performances.append(
                     (degree_, lambda_, gamma_, mean_weights, mean_accuracy))
 
-                print("Model specs : degree = [], lambda = [], mean weights = [], mean accuracy = [],".format(
+                print("Model specs : degree = {}, lambda = {}, mean weights = {}, mean accuracy = {},".format(
                     degree_, lambda_, gamma_, mean_weights, mean_accuracy))
 
                 # Implement best model : print the hyper-paramaters values of the best model:
