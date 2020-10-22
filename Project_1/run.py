@@ -10,6 +10,8 @@ from implementations import *
 from cost import *
 from gradients import *
 from preprocessing import *
+import os
+os.chdir("/Users/machraouianas/Desktop/MA1/ML/twohundredbpm/Project_1")
 
 # If needed for initializing the weights :
 # seed = 12
@@ -33,8 +35,8 @@ lambdas = [0.0001, 0.01, 0.01, 0.1]
 # gammas = [0.0001, 0.001, 0.01, 0.1]
 
 # Isolating the 4 groups with distinct PRI_jet_num values:
-#train_x_jet = extract_PRI_jet_num(tX)
-#test_x_jet = extract_PRI_jet_num(tX_test)
+train_x_jet = extract_PRI_jet_num(tX)
+test_x_jet = extract_PRI_jet_num(tX_test)
 
 # Removing NaN columns from the different groups (defined above):
 train_x_jet = remove_non_defined_columns(train_x_jet)

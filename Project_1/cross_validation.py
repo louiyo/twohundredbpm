@@ -1,6 +1,13 @@
 from implementations import *
-from helpers import init_weights
+from helpers import *
 import numpy as np
+
+
+def polynomial_expansion(x, degree):
+    poly = np.ones((len(x), 1))
+    for deg in range(1, degree + 1):
+        poly = np.c_[poly, np.power(x, deg)]
+    return poly
 
 
 def build_poly_x(x, degree):
@@ -40,7 +47,7 @@ def build_index(y, k_fold, seed=12):
 
     k_fold_index = [index[k*num_ex: (k+1) * num_ex] for k in range(k_fold)]
 
-    return np.array(index)
+    return np.array(k_fold_index)
 
 
 def compute_model(y, x, w0, k, indices, gamma_, lambda_, max_iters, model):
@@ -65,21 +72,22 @@ def compute_model(y, x, w0, k, indices, gamma_, lambda_, max_iters, model):
     elif model == "least_squares":
         w_, loss_ = least_squares()
     elif model == "ridge_regression":
-        w_, loss_ = ridge_regression()
+        w_, _ = ridge_regression(y, x, lambda_)
     elif model == "logistic regression":
         w_, loss_ = logistic_regression()
     elif model == "reg_logistic_regression":
         w_, loss_ = reg_logistic_regression()
     else:
-        raise NameError("Invalid model : []".format(model))
+        raise NameError("Invalid model : {}".format(model))
 
     # Compute the accuracy of the model with the validation dataset :
-    acc_ = compute_accuracy(y_test, x_test, w_)
+    acc_ = compute_accuracy(y, x, w_)
 
     return w_, acc_
 
 
-def cross_validation(y, tX, w0, model="least_squares", k_fold=12, degrees=[1], lambdas=[0], gammas=[0], max_iters=50):
+def cross_validation(y, tX, w0, model="ridge_regression", k_fold=12,
+                     degrees=[1], lambdas=[0], gammas=[0], max_iters=50):
     """
         Implementing cross_validation on a given model.
     """
@@ -88,9 +96,9 @@ def cross_validation(y, tX, w0, model="least_squares", k_fold=12, degrees=[1], l
     accuracy_model = 0.0
     best_parameters = (0, 0, 0)
 
-    for degree_ in degrees:
-        tX_ = build_poly_tx(tX, degree)
-        w0_ = init_weights(tX_)
+    for degree in degrees:
+        tX_poly = polynomial_expansion(tX, degree)
+        w0_ = init_weights(tX_poly)
 
         for lambda_ in lambdas:
             for gamma_ in gammas:
@@ -98,7 +106,7 @@ def cross_validation(y, tX, w0, model="least_squares", k_fold=12, degrees=[1], l
                 w_ = []
 
                 for k in range(k_fold):
-                    w, acc = compute_model(y, tX_, w0_, k, indices, gamma_,
+                    w, acc = compute_model(y, tX_poly, w0_, k, indices, gamma_,
                                            lambda_, max_iters, model)
 
                     acc_.append(acc)
@@ -106,15 +114,17 @@ def cross_validation(y, tX, w0, model="least_squares", k_fold=12, degrees=[1], l
 
                 mean_weights = np.mean(w_, axis=0)
                 mean_accuracy = np.mean(acc_)
+                print("mean for ", lambda_, " ", mean_accuracy)
                 performances.append(
-                    (degree_, lambda_, gamma_, mean_weights, mean_accuracy))
-
-                print("Model specs : degree = [], lambda = [], mean weights = [], mean accuracy = [],".format(
-                    degree_, lambda_, gamma_, mean_weights, mean_accuracy))
+                    (degree, lambda_, gamma_, mean_weights, mean_accuracy))
+                #print("accuracies : ", acc_)
+                """print("Model specs : degree = {}, lambda = {}, gamma = {}".format(
+                    degree, lambda_, gamma_))"""
 
                 # Implement best model : print the hyper-paramaters values of the best model:
                 if mean_accuracy > accuracy_model:
+                    print("hello ", lambda_)
                     accuracy_model = mean_accuracy
-                    best_parameters = (degree_, lambda_, gamma_)
+                    best_parameters = (degree, lambda_, gamma_)
 
     return performances, best_parameters

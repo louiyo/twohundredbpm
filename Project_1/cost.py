@@ -23,7 +23,7 @@ def compute_mae(y, tx, w):
     return loss
 
 
-def compute_log_likelihooh(y, tx, w, lambda_=0):
+def compute_log_likelihood(y, tx, w, lambda_=0):
     """
         Compute the negative log likelihood of the data
         lambda_ : if = 0 it computes it for logistic regression, else it is
