@@ -10,31 +10,6 @@ def polynomial_expansion(x, degree):
     return poly
 
 
-def build_poly_x(x, degree):
-    """
-        Polynomial basis function for data x, from j = 0 to j = degree.
-    """
-    M = x
-    for j in range(2, degree + 1):
-        M = np.c_[M, x**j]
-    return M
-
-
-def build_poly_tx(tx, degree):
-    """
-        Polynomial basis function for data x, from j = 0 to j = degree.
-    """
-    (rows, cols) = tx.shape
-
-    poly_tx = build_poly_x(tx[:, 0], degree)
-
-    for id in range(1, cols):
-        poly_tx = np.c_[poly_tx, build_poly_x(poly_tx[:, id], degree)]
-    poly_tx = np.c_[np.ones((rows, 1)), poly_tx]
-
-    return poly_tx
-
-
 def build_index(y, k_fold, seed=12):
     """
         Building the the indices for k-fold cross validation.
@@ -117,9 +92,6 @@ def cross_validation(y, tX, w0, model="ridge_regression", k_fold=12,
                 print("mean for ", lambda_, " ", mean_accuracy)
                 performances.append(
                     (degree, lambda_, gamma_, mean_weights, mean_accuracy))
-                #print("accuracies : ", acc_)
-                """print("Model specs : degree = {}, lambda = {}, gamma = {}".format(
-                    degree, lambda_, gamma_))"""
 
                 # Implement best model : print the hyper-paramaters values of the best model:
                 if mean_accuracy > accuracy_model:
