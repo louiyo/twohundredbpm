@@ -43,20 +43,20 @@ def compute_model(y, x, w0, k, indices, gamma_, lambda_, max_iters, model):
     if model == "least_squares_GD":
         w_, loss_ = least_squares_GD(y_train, x_train, w0, max_iters, gamma_)
     elif model == "least_squares_SGD":
-        w_, loss_ = least_squares_SGD()
+        w_, loss_ = least_squares_SGD(y_train, x_train, w0, max_iters, gamma_)
     elif model == "least_squares":
-        w_, loss_ = least_squares()
+        w_, loss_ = least_squares(y_train, x_train)
     elif model == "ridge_regression":
-        w_, _ = ridge_regression(y, x, lambda_)
+        w_, _ = ridge_regression(y_train, x_train, lambda_)
     elif model == "logistic regression":
-        w_, loss_ = logistic_regression()
+        w_, loss_ = logistic_regression(y_train, x_train, w0, max_iters, gamma_)
     elif model == "reg_logistic_regression":
-        w_, loss_ = reg_logistic_regression()
+        w_, loss_ = reg_logistic_regression(y_train, x_train, w0, max_iters, gamma_, lambda_)
     else:
         raise NameError("Invalid model : {}".format(model))
 
     # Compute the accuracy of the model with the validation dataset :
-    acc_ = compute_accuracy(y, x, w_)
+    acc_ = compute_accuracy(y_test, x_train, w_)
 
     return w_, acc_
 
@@ -95,7 +95,6 @@ def cross_validation(y, tX, w0, model="ridge_regression", k_fold=12,
 
                 # Implement best model : print the hyper-paramaters values of the best model:
                 if mean_accuracy > accuracy_model:
-                    print("hello ", lambda_)
                     accuracy_model = mean_accuracy
                     best_parameters = (degree, lambda_, gamma_)
 

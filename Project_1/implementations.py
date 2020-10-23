@@ -39,17 +39,9 @@ def least_squares(y, tx):
 
 def ridge_regression(y, tx, lambda_):
     # Ridge regression using normal equations
-    """(nrows, ncols) = tx.shape
-    regularizer = np.ones(ncols) + lambda_*(2*nrows)
+    (nrows, ncols) = tx.shape
+    regularizer = np.identity(ncols) * lambda_*(2*nrows)
     w = np.linalg.solve(tx.T.dot(tx) + regularizer, tx.T.dot(y))
-    loss = compute_mse(y, tx, w)"""
-
-    coefficient_matrix = tx.T.dot(
-        tx) + 2 * len(y) * lambda_ * np.identity(tx.shape[1])
-    constant_vector = tx.T.dot(y)
-    #print("determinant de coef : ", np.linalg.det(coefficient_matrix))
-    #print("determinant de const : ", np.linalg.det(constant_vector))
-    w = np.linalg.solve(coefficient_matrix, constant_vector)
     loss = compute_mse(y, tx, w)
 
     return w, loss
@@ -68,7 +60,7 @@ def logistic_regression(y, tx, initial_w, max_iters, gamma):
     return w, loss
 
 
-def reg_logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
+def reg_logistic_regression(y, tx, initial_w, max_iters, gamma, lambda_):
     # Regularized logistic regression using gradient descent or SGD
     w = initial_w
 
