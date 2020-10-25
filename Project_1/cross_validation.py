@@ -66,8 +66,8 @@ def compute_model(y, x, w0, k, indices, gamma_, lambda_, max_iters, model):
     return w_, acc_
 
 
-def cross_validation(y, tX, model="ridge_regression", k_fold=12, display=False,
-                     degrees=[1], lambdas=[0], gammas=[0], max_iters=50):
+def cross_validation(y, tX, model="ridge_regression", k_fold=12, degrees=[1],
+                    lambdas=[0], gammas=[0], max_iters=50):
     """
         Implementing cross_validation on a given model.
     """
@@ -96,8 +96,6 @@ def cross_validation(y, tX, model="ridge_regression", k_fold=12, display=False,
                 mean_weights = np.mean(w_, axis=0)
                 mean_accuracy = np.mean(acc_)
                 print("mean for ", lambda_, " ", mean_accuracy)
-                if(display):
-                    display_vector.append((lambda_, mean_accuracy))
                 performances.append(
                     (degree, lambda_, gamma_, mean_weights, mean_accuracy))
 
@@ -105,6 +103,5 @@ def cross_validation(y, tX, model="ridge_regression", k_fold=12, display=False,
                 if mean_accuracy > accuracy_model:
                     accuracy_model = mean_accuracy
                     best_parameters = (degree, lambda_, gamma_)
-        if(display):
-            plt.plot(display_vector[0], display_vector[1])
+
     return performances, best_parameters
