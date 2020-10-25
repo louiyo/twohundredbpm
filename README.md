@@ -24,7 +24,7 @@ For the computer to learn the prediction model, we give a variety of methods inc
 
 However these methods are not enough to achieve good performance. First we noticed that depending on the value of the *PRI_jet_num* feature of the data, some of the other features are irrelevant for predicting the label of this particle (we found that for the jet num zero, less than twenty out of 30 are defined, whereas 29 are in model 3). Therefore we *split* the dataset in *4*, already sorting the examples by their PRI_jet_num value. The algorithm then learns 4 different model.
 
-Thus we added the **preprocessing** part, which *standardize* the data, perform *polynomial expansion* on the features, remove *useless features* and replaced non defined data by the median of the corresponding feature when necessary. 
+Thus we added the **preprocessing** part, which *standardizes* the data, performs *polynomial expansion* on the features, removes *useless features* and replaces non defined data by the median of the corresponding feature when necessary. 
 
 In addition, **cross-validation** is implemented in order to find the best hyper-parameter values depending on the Machine Learning method you want to use. 
 
