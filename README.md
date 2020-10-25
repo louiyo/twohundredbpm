@@ -7,10 +7,10 @@ In this repository you can find the first project of the course of Machine learn
 ## Project 1 :
 
 ### Description :
-The goal of this project is to predict whether a particule is a boson or not depending on specific features. The dataset we analyize are the train and test set, of size (250000,30) and (568238,30) respectively. 
+The goal of this project is to predict whether a particule is a boson or not depending on specific features. The dataset we analyize are the training and test set, of size (250000,30) and (568238,30) respectively. 
 
 ### Architecture :
-The project is coded with Python3 using the numpy library only.
+The project is coded with Python3 using the numpy library only, and seaborn for visualization.
 
 ### Implementations :
 For the computer to learn the prediction model, we give a variety of methods including **Least Squares** (with (stochastic) gradient descent), **ridge regression**, and **logistic regression**. These are the basic implementations :
@@ -22,9 +22,9 @@ For the computer to learn the prediction model, we give a variety of methods inc
 - logistic regression(y, tx, initial w, max iters, gamma)
 - reg logistic regression(y, tx, lambda , initial w, max iters, gamma)
 
-However it is not sufficient to perform good with only these methods. First we noticed that depending on the value of the *PRI_jet_num* feature of the examples, some of the other features are irelevant for predicting the label of this particle. Therefore we *split* the dataset in *4*, already classifying the examples by their PRI_jet_num value. The algorithm then learn 4 different model.
+However these methods are not enough to achieve good performance. First we noticed that depending on the value of the *PRI_jet_num* feature of the data, some of the other features are irrelevant for predicting the label of this particle (we found that for the jet num zero, less than twenty out of 30 are defined, whereas 29 are in model 3). Therefore we *split* the dataset in *4*, already sorting the examples by their PRI_jet_num value. The algorithm then learns 4 different model.
 
-Thus we added the **preprocessing** part, which *standardize* the data, perform *polynomial expansion* on the features, remove *useless features* and *outliers*. 
+Thus we added the **preprocessing** part, which *standardize* the data, perform *polynomial expansion* on the features, remove *useless features* and replaced non defined data by the median of the corresponding feature when necessary. 
 
 In addition, **cross-validation** is implemented in order to find the best hyper-parameter values depending on the Machine Learning method you want to use. 
 
@@ -34,6 +34,7 @@ All the files of the project contains the different methods named above, such th
 ### Libraries and Programming language:
 - [Numpy](https://numpy.org)
 - [Python](https://www.python.org)
+- [Seaborn](https://seaborn.pydata.org/)
 
 ## Project 2 :
 
