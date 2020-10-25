@@ -95,7 +95,7 @@ def cross_validation(y, tX, model="ridge_regression", k_fold=12, degrees=[1],
 
                 mean_weights = np.mean(w_, axis=0)
                 mean_accuracy = np.mean(acc_)
-                print("mean for ", lambda_, " ", mean_accuracy)
+                # print("mean for ", lambda_, " ", mean_accuracy)
                 performances.append(
                     (degree, lambda_, gamma_, mean_weights, mean_accuracy))
 
