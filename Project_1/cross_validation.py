@@ -66,7 +66,7 @@ def compute_model(y, x, w0, k, indices, gamma_, lambda_, max_iters, model):
     return w_, acc_
 
 
-def cross_validation(y, tX, w0, model="ridge_regression", k_fold=12, display=False,
+def cross_validation(y, tX, model="ridge_regression", k_fold=12, display=False,
                      degrees=[1], lambdas=[0], gammas=[0], max_iters=50):
     """
         Implementing cross_validation on a given model.
