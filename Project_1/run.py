@@ -10,74 +10,66 @@ from implementations import *
 from cost import *
 from gradients import *
 from preprocessing import *
-import os
-os.chdir("/Users/machraouianas/Desktop/MA1/ML/twohundredbpm/Project_1")
+from cross_validation import *
 
-# If needed for initializing the weights :
-# seed = 12
 
-# Loading of the train and test data :
-print('Loading train and test Data')
+print('Loading train and test Data...')
 
-# TODO: download train data and supply path here
 DATA_TRAIN_PATH = 'Data/train.csv'
 y, tX, ids = load_csv_data(DATA_TRAIN_PATH)
 
-DATA_TEST_PATH = 'Data/test.csv'  # TODO: download train data and supply path here
+DATA_TEST_PATH = 'Data/test.csv'
 y_test, tX_test, ids_test = load_csv_data(DATA_TEST_PATH)
 
-# TODO: fill in desired name of output file for submission
 OUTPUT_PATH = 'Data/output.csv'
 
-# Setting hyper-parameters values :
-degrees = [5, 10, 12, 15]
-lambdas = [0.0001, 0.01, 0.01, 0.1]
-# gammas = [0.0001, 0.001, 0.01, 0.1]
+print('Loading done')
 
-# Isolating the 4 groups with distinct PRI_jet_num values:
-train_x_jet = extract_PRI_jet_num(tX)
-test_x_jet = extract_PRI_jet_num(tX_test)
+# setting up parameters
+degrees = [11, 12, 13, 12]
+lambdas = [0.001009312, 0.001009312, 1.1212e-05, 0.0000696969]
 
-# Removing NaN columns from the different groups (defined above):
-train_x_jet = remove_non_defined_columns(train_x_jet)
-test_x_jet = remove_non_defined_columns(test_x_jet)
+# Removing irrelevant columns from the jet groups:
+tX = preprocess(tX)
+tX_test = preprocess(tX_test)
 
-y_pred = np.zeros(len(y))
+# Instancing predictions
+y_pred = []
 
-# Mauvaise itération - itérer sur chaque dataset spécifique au particules 0,1,2, et 3.
-# Puis compute le model pour les particules avec le PRI_jet_num spécifique.
 for idx in range(len(tX)):
-    # initializing the prediction vector :
-    y_pred_ = np.zeros(len(tX[idx]))
-    print(y_pred_.shape)
+    print("Beginning training on model ", idx+1)
 
-    # extracting the values of group idx :
-    train_x_jet_ = train_x_jet[idx]
-    train_y_jet_ = y[idx]
-    test_x_jet_ = test_x_jet[idx]
-
-    # Removing additional outliers :
-    train_selected_x_jet = replace_non_defined(train_x_jet_)
-    test_selected_x_jet = replace_non_defined(test_x_jet_)
-
-    # standardize :
-    tX_train, mean_x_train, std_x_train = standardize(train_selected_x_jet)
-    tX_test, _, _ = standardize(test_selected_x_jet, mean_x_train, std_x_train)
+    # extracting the values of specific group :
+    train_x_jet = tX[idx]
+    train_y_jet = y[idx]
+    test_x_jet = tX_test[idx]
 
     # Polynomial feature expansion :
-    tX_train_poly = build_poly_tx(tX_train, degrees[idx])
-    tX_test_poly = build_poly_tx(tX_test, degrees[idx])
+    tX_train_poly = polynomial_expansion(train_x_jet, degrees[idx])
+    tX_test_poly = polynomial_expansion(test_x_jet, degrees[idx])
 
-    w_, loss_ = ridge_regression(train_y_jet_, tX_train_poly, lambdas[idx])
+    w_, loss_ = ridge_regression(train_y_jet, tX_train_poly, lambdas[idx])
 
-    accuracy_ = compute_accuracy(train_y_jet_, tX_train_poly, w_)
-    print('The accuracy of model [] is equal to []'.format(int(idx), accuracy_))
+    accuracy_ = compute_accuracy(train_y_jet, tX_train_poly, w_)
+    print('The accuracy of model {} is equal to {}'.format(int(idx+1), accuracy_))
 
-    # Computing test accuracy : (To be changed -> à mettre dans une nouvelle boucle)
-    y_pred_ = predict_labels(w_, tX_test_poly)
-    y_pred[test_x_jet_[1] == idx] = y_pred_.flatten()
+    y_pred_jet = predict_labels(w_, tX_test_poly)
 
-    test_acc = np.mean(y_pred == y_test, axis=0)
-    print('The accuracy over the test data is equal to []'.format(test_acc))
+    y_pred.append(y_pred_jet)
 
-create_csv_submission(ids_test, y_pred, OUTPUT_PATH)
+
+y_total = np.zeros(len(np.hstack(ids_test)))
+
+min_id_test = min(np.hstack(ids_test))
+
+ids_total = np.arange(len(y_total))
+ids_total += min_id_test
+
+for jet_num in range(len(y)):
+    for j in range(len(y_pred[jet_num])):
+        y_total[ids_test[jet_num][j] - min_id_test] = y_pred[jet_num][j]
+
+y_total.reshape(-1, 1)
+
+print('Building output file in ', OUTPUT_PATH)
+create_csv_submission(ids_total, y_total, OUTPUT_PATH)
