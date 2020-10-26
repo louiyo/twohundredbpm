@@ -31,6 +31,8 @@ In addition, **cross-validation** is implemented in order to find the best hyper
 ### How to run the algorithm :
 All the files of the project contains the different methods named above, such that running the run.py file allows your computer to learn the model with the training data. Then it predicts the labels of the examples in the test dataset. 
 
+There is an alternative way to run the code : the Jupyter Notebook (Project.ipynb). With this tool, one can cross-validate the hyper-parameters values, compute the prediction model (ridge regression by default) and visualize training accuracy for example.
+
 ### Libraries and Programming language:
 - [Numpy](https://numpy.org)
 - [Python](https://www.python.org)
