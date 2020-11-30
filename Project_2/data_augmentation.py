@@ -17,6 +17,8 @@ import PIL.ImageOps
 import PIL.ImageEnhance
 import PIL.ImageDraw
 from skimage.util import random_noise
+from keras.preprocessing.image import ImageDataGenerator, load_img, img_to_array, array_to_img
+
 
 
 """def add_noise(img, v):
