@@ -3,6 +3,8 @@ import numpy as np
 from tf import keras
 from keras import Model
 from keras.layers import Activation, BatchNormalization, MaxPooling2D, concatenate, Dropout,Conv2D, Conv2DTranspose
+from keras.optimizers import Adam
+
 
 def conv_batch(input,n_filters,kernel_size=(3,3),batch_norm,activation_fct):
 
@@ -75,7 +77,9 @@ def build_unet(input,n_filters,dropout_down=0.0,dropout_up=0.0,batchnorm=True,ac
     #final classification
 
     output=Conv2D(1,(1,1),final_activation)(c9)
+
+    #building model
     model=Model(inputs=input,outputs=output)
-    model.compile(optimizer = 'adam', loss = 'binary_crossentropy', metrics = )
+    model.compile(optimizer = 'adam', loss = 'binary_crossentropy', metrics = 'accuracy')
 
     return model
