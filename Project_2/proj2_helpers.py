@@ -80,3 +80,10 @@ def extract_img_features(filename):
     X = np.asarray([extract_features_2d(img_patches[i])
                     for i in range(len(img_patches))])
     return X
+
+def value_to_class(v):
+    df = np.sum(v)
+    if df > foreground_threshold:
+        return 1
+    else:
+        return 0
