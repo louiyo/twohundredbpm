@@ -30,8 +30,9 @@ def preprocess(root_dir='./training/', save_dir='',
 
     imgs_aug = np.asarray([img_to_array(img_) for img_ in imgs_aug])
     gt_imgs_aug = np.asarray([img_to_array(img_) for img_ in gt_imgs_aug])
-    if(divide_set != False):
+    if(divide_set == False):
         return imgs_aug, gt_imgs_aug
     else:
-        return X_train, X_test, Y_train, Y_test = train_test_split(imgs_aug, gt_imgs_aug,
-                                                                   test_size=ratio, random_state=random_state)
+        X_train, X_test, Y_train, Y_test = train_test_split(imgs_aug, gt_imgs_aug,
+                                                            test_size=ratio, random_state=0)
+        return X_train, X_test, Y_train, Y_test
