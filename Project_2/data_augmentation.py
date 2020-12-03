@@ -21,6 +21,7 @@ from keras.preprocessing.image import ImageDataGenerator, load_img, img_to_array
 import tensorflow as tf
 
 
+
 def add_noise(imgs, v):
     img = img_to_array(imgs[0])
     img_noise_arr = random_noise(img, mode='s&p',

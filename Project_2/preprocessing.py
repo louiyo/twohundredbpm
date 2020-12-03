@@ -1,6 +1,6 @@
 from data_augmentation import *
 from sklearn.model_selection import train_test_split
-
+import keras
 
 def load_image(directory):
     return mpimg.imread(directory)
