@@ -12,15 +12,16 @@ from keras.layers import Dense, Conv2D, MaxPool2D , Flatten
 from keras.preprocessing.image import ImageDataGenerator
 from keras.optimizers import adam
 from keras.applications.vgg16 import VGG16
+from UNet_model import f1_m, precision_m, recall_m
 
 from keras.callbacks import ModelCheckpoint, EarlyStopping, ReduceLROnPlateau
 from sklearn.ensemble import RandomForestClassifier
 
-PATH_training = "/Data/Training"
-PATH_test = "/Data/test_set_images"
+PATH_training = "./Data/Training"
+PATH_test = "./Data/test_set_images"
 
-IMG_WIDTH = 400
-IMG_HEIGHT = 400
+IMG_WIDTH = 608
+IMG_HEIGHT = 608
 IMG_CHANNELS = 3
 INPUT_SHAPE = ((IMG_WIDTH, IMG_HEIGHT, IMG_CHANNELS))
 
@@ -30,7 +31,12 @@ RANDOM_STATE = 42
 
 class Vgg16 :
 
-    def __init__(self, PATH_training, PATH_test, save_models = True, validation_set = False):
+    def __init__(self,
+                 PATH_training,
+                 PATH_test,
+                 save_models = True,
+                 validation_set = False):
+        
         """ Initialsizes a VGG16 net, train it and make predictions on the test set
 
             param PATH_training : path to the training data folder
@@ -39,7 +45,8 @@ class Vgg16 :
         """
         # load and preprocess train data :
         if validation_set:
-            self.X_train, self.Y_train, self.X_val, self.Y_val = preprocess(root_dir=PATH_training, divide_set = validation_set)
+            self.X_train, self.Y_train, self.X_val, self.Y_val = preprocess(root_dir=PATH_training,
+                                                                divide_set = validation_set)
         else :
             self.X_train, self.Y_train  = preprocess(root_dir=PATH_training)
         # load test data :
@@ -51,13 +58,11 @@ class Vgg16 :
         # Use Random Forest to classify features given by VGG16 to make masks :
         self.RF_model = self.classification()
 
-        # Predictions on Test data :
-        make_predictions(self.X_test, self.RF_model)
-
         # Save models :
         if save_models == True:
             self.save_models()
-
+        
+        return self.RF_model
 
     def construct_model(self):
         """
@@ -101,7 +106,12 @@ class Vgg16 :
         model.add(Dense(units=4096,activation="relu"))
         model.add(Dense(units=1, activation="softmax")) # 1 output
 
-        model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+        model.compile(optimizer='adam',
+                      loss='binary_crossentropy',
+                      metrics=['binary_accuracy',
+                                f1_m,
+                                precision_m,
+                                recall_m])
 
         return model
 
@@ -140,7 +150,12 @@ class Vgg16 :
                                 mode='min')]
 
         # model.fit_generator(steps_per_epoch=100,generator=traindata, validation_data= testdata, validation_steps=10,epochs=100,callbacks=callbacks)
-        model.fit(self.X_train, self.Y_train, validation_split=0.1, batch_size=16, steps_per_epoch=100, callbacks=callbacks)
+        model.fit(self.X_train,
+                  self.Y_train,
+                  validation_split=0.1,
+                  batch_size=16,
+                  steps_per_epoch=100,
+                  callbacks=callbacks)
 
 
     # inutile dans notre cas !!!
@@ -166,12 +181,14 @@ class Vgg16 :
         """ Executes classification of Images using Random Forest."""
 
         features= self.model.predict(self.X_train)
-        self.X_train = features.reshape(-1, X.shape[3])  #Make it compatible for Random Forest and match Y labels
-
+        #Make it compatible for Random Forest and match Y labels
+        self.X_train = features.reshape(-1, X.shape[3])  
+        
         #Reshape Y to match X
         self.Y_train = self.Y_train.reshape(-1)
 
-        RF_model = RandomForestClassifier(n_estimators = ESTIMATORS, random_state = RANDOM_STATE)
+        RF_model = RandomForestClassifier(n_estimators = ESTIMATORS,
+                                          random_state = RANDOM_STATE)
         RF_model.fit(self.X_train, self.Y_train)
 
         #predict_image = np.expand_dims(X_train[8,:,:,:], axis=0)
