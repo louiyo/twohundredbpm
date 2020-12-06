@@ -31,7 +31,7 @@ def conv_batch(img, n_filters, batch_norm, activation_fct, kernel_size):
 
 def build_unet(img, n_filters, dropout_down=0.0, dropout_up=0.0,
                batch_norm=True, activation_fct='relu',
-               final_activation='sigmoid', kernel_size=(3, 3)):
+               final_activation='sigmoid', kernel_size=(3, 3),dilate=True):
 
     # downwards path
     c1 = conv_batch(img, n_filters, batch_norm, activation_fct, kernel_size)
@@ -50,8 +50,34 @@ def build_unet(img, n_filters, dropout_down=0.0, dropout_up=0.0,
     p4 = MaxPooling2D((2, 2))(c4)
     d4 = Dropout(dropout_down)(p4)
 
-    # lateral path
-    c5 = conv_batch(d4, n_filters*16, batch_norm, activation_fct, kernel_size)
+    # bottleneck
+    if (dilate):
+        dilate1 = Conv2D(n_filters*16,3, activation='relu', padding='same', dilation_rate=1, kernel_initializer='he_normal')(d4)
+        b7 = BatchNormalization()(dilate1)
+        b7 = Dropout(rate=0.3)(b7)
+        dilate2 = Conv2D(n_filters*16,3, activation='relu', padding='same', dilation_rate=2, kernel_initializer='he_normal')(b7)
+        b8 = BatchNormalization()(dilate2)
+        b8 = Dropout(rate=0.3)(b8)
+        dilate3 = Conv2D(n_filters*16,3, activation='relu', padding='same', dilation_rate=4, kernel_initializer='he_normal')(b8)
+        b9 = BatchNormalization()(dilate3)
+        b9 = Dropout(rate=0.3)(b9)
+        dilate4 = Conv2D(n_filters*16,3, activation='relu', padding='same', dilation_rate=8, kernel_initializer='he_normal')(b9)
+        b10 = BatchNormalization()(dilate4)
+        b10 = Dropout(rate=0.3)(b10)
+        dilate5 = Conv2D(n_filters*16,3, activation='relu', padding='same', dilation_rate=16, kernel_initializer='he_normal')(b10)
+        b11 = BatchNormalization()(dilate5)
+        b11 = Dropout(rate=0.3)(b11)
+        dilate6 = Conv2D(n_filters*16,3, activation='relu', padding='same', dilation_rate=32, kernel_initializer='he_normal')(b11)
+        #if addition == 1:
+        c5 = add([dilate1, dilate2, dilate3, dilate4, dilate5, dilate6])
+
+
+    else:
+        c5 = conv_batch(d4, n_filters*16, batch_norm, activation_fct, kernel_size)
+
+    #bottleneck with dilation
+
+
 
     # upwards path (try dropout after conv_batch)
     up6 = Conv2DTranspose(n_filters*8, kernel_size, strides=(2, 2),

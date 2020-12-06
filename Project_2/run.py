@@ -18,7 +18,7 @@ STEPS_PER_EPOCH = 600
 MODEL_NAME = 'new_model.h5'
 SUBMISSION_PATH = './submission/new_submission.csv'
 BATCH_SIZE = 16
-
+DILATION=True
 
 def run_(X_train, Y_train, X_test, Y_test):
 
@@ -38,7 +38,7 @@ def run_(X_train, Y_train, X_test, Y_test):
                             batch_norm=True,
                             activation_fct=ACTIV_FCT,
                             final_activation=FINAL_ACT,
-                            kernel_size=KERNEL_SIZE)
+                            kernel_size=KERNEL_SIZE,dilate=DILATION)
 
     unet_model.compile(optimizer=Adam(lr=1e-4),
                        loss='binary_crossentropy',
