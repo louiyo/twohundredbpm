@@ -140,12 +140,13 @@ def augment_list():  # Operations and their ranges
         #(random_crop, 0.5, 0.9)
     ]
 
-
 class RandAugment:
-    def __init__(self, n, m):
+    def __init__(self, n, m, upscale_to_test_size = False):
         self.n = n
         self.m = m      # [0, 30]
         self.augment_list = augment_list()
+        if(upscale_to_test_size):
+            self.augment_list.append((random_crop, 0.7, 1))
 
     def augment(self, imgs):
         # IMPORTANT : imgs should be a tuple containing
@@ -157,3 +158,4 @@ class RandAugment:
             imgs = (img1, img2)
 
         return imgs[0], imgs[1]
+
