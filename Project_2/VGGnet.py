@@ -30,20 +30,31 @@ RANDOM_STATE = 42
 
 class Vgg16 :
 
-    def __init__(self, PATH_training, PATH_test, save_models = True):
+    def __init__(self, PATH_training, PATH_test, save_models = True, validation_set = False):
         """ Initialsizes a VGG16 net, train it and make predictions on the test set
 
             param PATH_training : path to the training data folder
             param PATH_test : path to the test data folder
             param save_models : if true, the models used for classification are saved as .h5 file
         """
-        self.X_train, self.Y_train = preprocess(root_dir=PATH_training)
+        # load and preprocess train data :
+        if validation_set:
+            self.X_train, self.Y_train, self.X_val, self.Y_val = preprocess(root_dir=PATH_training, divide_set = validation_set)
+        else :
+            self.X_train, self.Y_train  = preprocess(root_dir=PATH_training)
+        # load test data :
         self.X_test = load_test_set(PATH_test)
+        # construct VGG16 net and train it :
         self.model = self.construct_model()
+        self.training()
+
+        # Use Random Forest to classify features given by VGG16 to make masks :
         self.RF_model = self.classification()
-        self.Y_pred = self.model.predict(self.X_test)
+
+        # Predictions on Test data :
         make_predictions(self.X_test, self.RF_model)
 
+        # Save models :
         if save_models == True:
             self.save_models()
 
@@ -103,7 +114,7 @@ class Vgg16 :
         self.RF_model.save('RF_classifier.h5')
 
 
-    def Training(self):
+    def training(self, evaluation = False):
         """ Training model."""
 
         callbacks = [
@@ -132,7 +143,7 @@ class Vgg16 :
         model.fit(self.X_train, self.Y_train, validation_split=0.1, batch_size=16, steps_per_epoch=100, callbacks=callbacks)
 
 
-    # inutile dans notre cas
+    # inutile dans notre cas !!!
     def remove_zero_labels(self):
         """ Remove the zero labels to reduce the dataset to classify."""
         #Combine X and Y into a dataframe to make it easy to drop all rows with Y values 0
@@ -151,7 +162,7 @@ class Vgg16 :
         self.Y_train = dataset['Label']
 
 
-    def classification(self):
+    def classification(self, validation_set = False):
         """ Executes classification of Images using Random Forest."""
 
         features= self.model.predict(self.X_train)
@@ -164,9 +175,17 @@ class Vgg16 :
         RF_model.fit(self.X_train, self.Y_train)
 
         #predict_image = np.expand_dims(X_train[8,:,:,:], axis=0)
-        test_features = RF_model.predict(self.X_test)
-        self.X_test = X_test_feature.reshape(-1, test_features.shape[3])
+        test_features = self.model.predict(self.X_test)
+        self.X_test = test_feature.reshape(-1, test_features.shape[3])
 
-        # self.Y_pred = self.model.predict(self.X_test)
+        if validation_set:
+            val_features = self.model.predict(self.X_val)
+            self.X_val = val_feature.reshape(-1, val_features.shape[3])
+            self.Y_val = self.Y_train.reshape(-1)
+
+            results = RF_model.evaluate(X_val, Y_val)
+            print(results)
+
+        # self.Y_pred = RF_model.predict(self.X_test)
 
         return RF_model
