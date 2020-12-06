@@ -4,9 +4,11 @@ import matplotlib.pyplot as plt
 import os
 import sys
 from PIL import Image
+from keras.preprocessing.image import load_img, img_to_array
+from mask_to_submission import *
 
-
-patch_size = 16
+PATCH_SIZE = 16
+IMG_SIZE = 608
 
 # Helper functions
 
@@ -16,6 +18,49 @@ def load_image(infilename):
     return data
 
 
+def load_test_imgs(path):
+    test_imgs = []
+    for image_dir in os.listdir(path):
+        for img in os.listdir(path + image_dir):
+            test_img = img_to_array(load_img(path + image_dir + '/' + img))
+            test_imgs.append(test_img)
+    test_imgs = np.stack(test_imgs, axis = 0)/ 255.0
+    print('!!loaded test set in ', path)
+    return test_imgs
+
+
+def make_predictions(imgs_test, model, name_of_csv = './submission/submission.csv', foreground_th = 0.55):
+    
+    imgs_pred = model.predict(np.asarray(imgs_test), batch_size = 1, verbose = 1)
+    imgs_pred[imgs_pred <= foreground_th] = 0
+    imgs_pred[imgs_pred > foreground_th] = 1
+    
+    
+    img_patches = [img_crop(img, PATCH_SIZE, PATCH_SIZE) for img in imgs_pred]
+    img_patches = np.asarray([img_patches[i][j] for i in range(len(img_patches)) for j in range(len(img_patches[i]))])
+    preds = np.asarray([patch_to_label(np.mean(img_patches[i])) for i in range(len(img_patches))])
+    
+    create_submission(preds, name_of_csv)
+    #masks_to_submission(name_of_csv, preds)
+    
+    
+def create_submission(preds, name_of_csv):
+    n = IMG_SIZE // PATCH_SIZE
+    preds = np.reshape(preds, (-1, n, n))
+    
+    with open(name_of_csv, 'w') as f:
+        f.write('id,prediction\n')
+        for i in range(len(preds)):
+            img = preds[i]
+            for j in range(img.shape[0]):
+                for k in range(img.shape[1]):    
+                    f.write(('{:03d}_{}_{},{}'.format(i + 1, 
+                                    j * PATCH_SIZE,
+                                    k * PATCH_SIZE,
+                                    int(img[j,k])))+'\n')
+
+                    
+                    
 def img_float_to_uint8(img):
     rimg = img - np.min(img)
     rimg = (rimg / np.max(rimg) * 255).round().astype(np.uint8)
