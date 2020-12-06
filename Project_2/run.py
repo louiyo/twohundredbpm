@@ -13,8 +13,8 @@ DROPOUT_UP = 0.1
 ACTIV_FCT = 'relu'
 FINAL_ACT = 'sigmoid'
 KERNEL_SIZE = (3, 3)
-EPOCHS = 50
-STEPS_PER_EPOCH = 600
+EPOCHS = 25
+#STEPS_PER_EPOCH = 600
 MODEL_NAME = 'new_model.h5'
 SUBMISSION_PATH = './submission/new_submission.csv'
 BATCH_SIZE = 16
@@ -46,8 +46,7 @@ def run_(X_train, Y_train, X_test, Y_test):
 
     unet_model.fit(X_train, Y_train,
                    validation_split=0.1,
-                   batch_size=16,
-                   steps_per_epoch=STEPS_PER_EPOCH,
+                   batch_size=BATCH_SIZE,
                    epochs=EPOCHS,
                    callbacks=model_tools)
 
