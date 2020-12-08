@@ -52,7 +52,7 @@ def conv_batch(img, n_filters, batch_norm, activation_fct, kernel_size):
 
 
 
-def build_unet(img, n_filters, dilate,dropout_down=0.5, dropout_up=0.5,
+def build_unet(img, n_filters, dilate,dropout_down, dropout_up,
                batch_norm=True, activation_fct='relu',
                final_activation='sigmoid', kernel_size=(3, 3)):
 
@@ -111,7 +111,7 @@ def build_unet(img, n_filters, dilate,dropout_down=0.5, dropout_up=0.5,
 
     c6 = Dropout(dropout_up)(up6)
     c6 = conv_batch(c6, n_filters*8, batch_norm, activation_fct, kernel_size)
-    
+
 
     up7 = Conv2DTranspose(n_filters*4, kernel_size, strides=(2, 2),
                           padding='same', kernel_initializer='he_normal')(c6)

@@ -15,7 +15,7 @@ DROPOUT_UP = 0.3
 ACTIV_FCT = 'relu'
 FINAL_ACT = 'sigmoid'
 KERNEL_SIZE = (3, 3)
-EPOCHS = 25
+EPOCHS = 200
 #STEPS_PER_EPOCH = 400
 MODEL_FILEPATH = './checkpoints/new_model.h5'
 TEST_IMGS_PATH = './test_set_images/'
@@ -24,8 +24,11 @@ BATCH_SIZE = 1
 DILATION = True
 
 
+
+
+
 def run_(train = False, save_imgs = False):
-    
+
     if(not train):
         input_size = Input((IMG_HEIGHT, IMG_WIDTH, IMG_CHANNELS))
         model = build_unet(input_size,
@@ -38,38 +41,39 @@ def run_(train = False, save_imgs = False):
                             kernel_size=KERNEL_SIZE)
         model.load_weights('./checkpoints/bestmodel.h5')
         print('loaded weigths from ', 'bestmodel.h5')
-    else: 
+    else:
         print('beginning training')
         X_train, X_test, Y_train, Y_test = preprocess(divide_set=True, save_imgs = save_imgs)
-        
+
         model = train_model(X_train, Y_train, X_test, Y_test)
 
     imgs_test = load_test_imgs(TEST_IMGS_PATH)
+
     print("making predictions...")
     make_predictions(imgs_test, model)
     print("created submission")
-    
-    
+
+
 
 def train_model(X_train, Y_train, X_test, Y_test):
-    
+
     cp = ModelCheckpoint(filepath=MODEL_FILEPATH,
                         verbose=1,
                         monitor='val_loss',
                         save_best_only=True)
-                        
+
     lr = ReduceLROnPlateau (monitor='val_loss',
                             factor=0.4,
                             patience=5,
                             verbose=1,
                             mode='min',
                             min_lr=1e-7)
-                            
+
     es = EarlyStopping (monitor='val_loss',
                         patience=20,
                         mode='min')
-                        
-    model_tools = [cp, lr, es]
+
+    model_tools = [cp]
 
     input_size = Input((IMG_HEIGHT, IMG_WIDTH, IMG_CHANNELS))
 
