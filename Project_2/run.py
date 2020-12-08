@@ -10,8 +10,8 @@ from preprocessing import *
 IMG_HEIGHT = IMG_WIDTH = 608
 IMG_CHANNELS = 3
 N_FILTERS = 16
-DROPOUT_DOWN = 0.05
-DROPOUT_UP = 0.1
+DROPOUT_DOWN = 0.3
+DROPOUT_UP = 0.3
 ACTIV_FCT = 'relu'
 FINAL_ACT = 'sigmoid'
 KERNEL_SIZE = (3, 3)
