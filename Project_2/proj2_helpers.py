@@ -9,7 +9,6 @@ from mask_to_submission import *
 import skimage.io as io
 
 PATCH_SIZE = 16
-IMG_SIZE = 608
 
 # Helper functions
 
@@ -65,9 +64,12 @@ def predict(imgs,unet_model):
 
 
 
-def make_predictions(imgs_test, model, name_of_csv = './submission/submission.csv', foreground_th = 0.55):
+def make_predictions(imgs_test, model, img_size, name_of_csv = './submission/submission.csv', foreground_th = 0.55):
 
-    imgs_preds = predict(imgs_test,model)
+    if(img_size==400):
+        imgs_preds = predict400(imgs_test,model)
+    elif(img_size==608): imgs_pred = model.predict(np.asarray(imgs_test), batch_size = 1, verbose = 1)
+    
     imgs_preds=np.asarray(imgs_preds)
     imgs_preds[imgs_preds <= foreground_th] = 0
     imgs_preds[imgs_preds > foreground_th] = 1
@@ -77,13 +79,12 @@ def make_predictions(imgs_test, model, name_of_csv = './submission/submission.cs
     img_patches = np.asarray([img_patches[i][j] for i in range(len(img_patches)) for j in range(len(img_patches[i]))])
     preds = np.asarray([patch_to_label(np.mean(img_patches[i])) for i in range(len(img_patches))])
     
-    create_submission(preds, name_of_csv)
-    #masks_to_submission(name_of_csv, preds)
+    create_submission(preds, name_of_csv, img_size)
     
     
 
-def create_submission(preds, name_of_csv):
-    n = IMG_SIZE // PATCH_SIZE
+def create_submission(preds, name_of_csv, img_size):
+    n = img_size // PATCH_SIZE
     preds = np.reshape(preds, (-1, n, n))
     
     with open(name_of_csv, 'w') as f:
