@@ -27,7 +27,7 @@ DILATION = True
 
 
 
-def run_(train = False, save_imgs = False):
+def run_(train = False, save_imgs = False, img_size=608):
 
     if(not train):
         input_size = Input((IMG_HEIGHT, IMG_WIDTH, IMG_CHANNELS))
@@ -38,14 +38,15 @@ def run_(train = False, save_imgs = False):
                             batch_norm=True,
                             activation_fct=ACTIV_FCT,
                             final_activation=FINAL_ACT,
-                            kernel_size=KERNEL_SIZE)
+                            kernel_size=KERNEL_SIZE,
+                            dilate=DILATION)
         model.load_weights('./checkpoints/bestmodel.h5')
         print('loaded weigths from ', 'bestmodel.h5')
     else:
         print('beginning training')
-        X_train, X_test, Y_train, Y_test = preprocess(divide_set=True, save_imgs = save_imgs)
+        X_train, X_test = preprocess(divide_set=False, save_imgs = save_imgs)
 
-        model = train_model(X_train, Y_train, X_test, Y_test)
+        model = train_model(X_train, Y_train)
 
     imgs_test = load_test_imgs(TEST_IMGS_PATH)
 
@@ -55,7 +56,7 @@ def run_(train = False, save_imgs = False):
 
 
 
-def train_model(X_train, Y_train, X_test, Y_test):
+def train_model(X_train, Y_train):
 
     cp = ModelCheckpoint(filepath=MODEL_FILEPATH,
                         verbose=1,
@@ -102,5 +103,4 @@ def train_model(X_train, Y_train, X_test, Y_test):
 
     # fitting the model to the train data
     # evaluating performance of the model
-    unet_model.evaluate(X_test, Y_test)
     return unet_model
