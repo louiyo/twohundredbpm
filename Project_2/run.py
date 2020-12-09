@@ -7,10 +7,11 @@ from tensorflow.keras.optimizers import Adam
 from proj2_helpers import create_submission, load_test_imgs, make_predictions
 from preprocessing import *
 
+IMG_HEIGHT = IMG_WIDTH = 400
 IMG_CHANNELS = 3
-N_FILTERS = 16
-DROPOUT_DOWN = 0.3
-DROPOUT_UP = 0.3
+N_FILTERS = 32
+DROPOUT_DOWN = 0.4
+DROPOUT_UP = 0.4
 ACTIV_FCT = 'relu'
 FINAL_ACT = 'sigmoid'
 KERNEL_SIZE = (3, 3)
@@ -19,54 +20,43 @@ EPOCHS = 200
 MODEL_FILEPATH = './checkpoints/new_model.h5'
 TEST_IMGS_PATH = './test_set_images/'
 SUBMISSION_PATH = './submission/new_submission.csv'
-BATCH_SIZE = 1
-DILATION = True
+BATCH_SIZE = 8
+DILATION = False
 
 
 
 
 
-run_(train = False, use_VGG = False, save_imgs = False, upscale=False):
-    
+def run_(train = False, save_imgs = False):
 
-    
-    #If upscaling is used, training images are padded with a mirror reflection.
-    if(upscale): img_size=608
-    else: img_size=400
-    if(use_VGG):
-        vgg = Vgg16(validation_set = True)
-        vgg.construct_existing_model()
+    if(not train):
+        input_size = Input((IMG_HEIGHT, IMG_WIDTH, IMG_CHANNELS))
+        model =build_unet(input_size,
+                            n_filters=N_FILTERS,
+                            dropout_down=DROPOUT_DOWN,
+                            dropout_up=DROPOUT_UP,
+                            batch_norm=True,
+                            activation_fct=ACTIV_FCT,
+                            final_activation=FINAL_ACT,
+                            kernel_size=KERNEL_SIZE,
+                            dilate = DILATION)
+        model.load_weights('./checkpoints/bestmodel.h5')
+        print('loaded weigths from ', 'bestmodel.h5')
     else:
-        if(not train):
-            input_size = Input((img_size, img_size, IMG_CHANNELS))
-            model = build_unet(input_size,
-                                n_filters=N_FILTERS,
-                                dropout_down=DROPOUT_DOWN,
-                                dropout_up=DROPOUT_UP,
-                                batch_norm=True,
-                                activation_fct=ACTIV_FCT,
-                                final_activation=FINAL_ACT,
-                                kernel_size=KERNEL_SIZE,
-                                dilate=DILATION)
-            model.load_weights('./checkpoints/bestmodel.h5')
-            print('loaded weigths from ', 'bestmodel.h5')
-        else:
-            print('beginning training')
-            X_train, X_test = preprocess(divide_set=False,
-                                         save_imgs = save_imgs,
-                                         upscale_to_test_size=upscale)
+        print('beginning training')
+        X_train,X_test,Y_train,Y_test=preprocess()
 
-            model = train_model(X_train, Y_train)
+        model = train_model(X_train, Y_train,X_test,Y_test)
 
-        imgs_test = load_test_imgs(TEST_IMGS_PATH)
+    #imgs_test = load_test_imgs(TEST_IMGS_PATH)
 
-        print("making predictions...")
-        make_predictions(imgs_test, model, img_size)
-        print("created submission")
+    print("making predictions...")
+    #make_predictions(imgs_test, model)
+    print("created submission")
 
 
 
-def train_model(X_train, Y_train, img_size):
+def train_model(X_train, Y_train,X_test,Y_test):
 
     cp = ModelCheckpoint(filepath=MODEL_FILEPATH,
                         verbose=1,
@@ -84,9 +74,9 @@ def train_model(X_train, Y_train, img_size):
                         patience=20,
                         mode='min')
 
-    model_tools = [cp, lr, es]
+    model_tools = [cp,es]
 
-    input_size = Input((img_size, img_size, IMG_CHANNELS))
+    input_size = Input((IMG_HEIGHT, IMG_WIDTH, IMG_CHANNELS))
 
     unet_model = build_unet(input_size,
                             n_filters=N_FILTERS,
@@ -98,7 +88,7 @@ def train_model(X_train, Y_train, img_size):
                             kernel_size=KERNEL_SIZE,
                             dilate = DILATION)
 
-    unet_model.compile(optimizer=Adam(lr=1e-5),
+    unet_model.compile(optimizer=Adam(lr=1e-4),
                        loss='binary_crossentropy',
                        metrics=['binary_accuracy',
                                 f1_m,
@@ -109,8 +99,10 @@ def train_model(X_train, Y_train, img_size):
                    validation_split=0.1,
                    batch_size=BATCH_SIZE,
                    epochs=EPOCHS,
-                   callbacks=[cp, lr, es])
+                   callbacks=model_tools)
 
     # fitting the model to the train data
     # evaluating performance of the model
+    print("evaluating performance of the model")
+    print(unet_model.evaluate(X_test, Y_test))
     return unet_model

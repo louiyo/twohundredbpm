@@ -6,6 +6,7 @@ import sys
 from PIL import Image
 from keras.preprocessing.image import load_img, img_to_array
 from mask_to_submission import *
+import skimage.io as io
 
 PATCH_SIZE = 16
 IMG_SIZE = 608
@@ -24,16 +25,27 @@ def load_test_imgs(path):
         for img in os.listdir(path + image_dir):
             test_img = img_to_array(load_img(path + image_dir + '/' + img))
             test_imgs.append(test_img)
-    test_imgs = np.stack(test_imgs, axis = 0)/ 255.0
+    test_imgs = np.stack(test_imgs, axis = 0)
     print('!!loaded test set in ', path)
     return test_imgs
 
-def predict400(imgs,unet_model):
+# leave it: peut être que le problème est dans load test images
+#def load_test_imgs(path):
+#for i in range(1, num_image+1):
+#        img = io.imread(os.path.join(path, "test_%d"%i, "test_%d.png"%i))
+        
+#        img = np.reshape(img,(1,)+img.shape)
+#        yield img
+
+
+def predict(imgs,unet_model):
     width = 608
     height = 608
     predictions=[]
+    print('imgs',imgs.shape)
     for img in imgs:
         img1 = img[:400, :400]
+        print(img1.shape)
         img1=img1.reshape(1,400,400,3)
         img2 = img[:400, -400:]
         img2=img2.reshape(1,400,400,3)
@@ -53,33 +65,15 @@ def predict400(imgs,unet_model):
 
 
 
-
 def make_predictions(imgs_test, model, name_of_csv = './submission/submission.csv', foreground_th = 0.55):
 
     imgs_preds = predict(imgs_test,model)
     imgs_preds=np.asarray(imgs_preds)
     imgs_preds[imgs_preds <= foreground_th] = 0
     imgs_preds[imgs_preds > foreground_th] = 1
-    print(imgs_preds.shape)
-    
-
+    print("ones",len(imgs_preds[imgs_preds==1]))
+    print("zeros",len(imgs_preds[imgs_preds==0]))
     img_patches = [img_crop(img, PATCH_SIZE, PATCH_SIZE) for img in imgs_preds]
-    img_patches = np.asarray([img_patches[i][j] for i in range(len(img_patches)) for j in range(len(img_patches[i]))])
-    preds = np.asarray([patch_to_label(np.mean(img_patches[i])) for i in range(len(img_patches))])
-    
-    create_submission(preds, name_of_csv)
-    masks_to_submission(name_of_csv, preds)
-
-
-
-def make_predictions608(imgs_test, model, name_of_csv = './submission/submission.csv', foreground_th = 0.55):
-    
-    imgs_pred = model.predict(np.asarray(imgs_test), batch_size = 1, verbose = 1)
-    imgs_pred[imgs_pred <= foreground_th] = 0
-    imgs_pred[imgs_pred > foreground_th] = 1
-    
-    
-    img_patches = [img_crop(img, PATCH_SIZE, PATCH_SIZE) for img in imgs_pred]
     img_patches = np.asarray([img_patches[i][j] for i in range(len(img_patches)) for j in range(len(img_patches[i]))])
     preds = np.asarray([patch_to_label(np.mean(img_patches[i])) for i in range(len(img_patches))])
     
@@ -87,6 +81,7 @@ def make_predictions608(imgs_test, model, name_of_csv = './submission/submission
     #masks_to_submission(name_of_csv, preds)
     
     
+
 def create_submission(preds, name_of_csv):
     n = IMG_SIZE // PATCH_SIZE
     preds = np.reshape(preds, (-1, n, n))

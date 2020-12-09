@@ -61,19 +61,19 @@ def build_unet(img, n_filters, dilate,dropout_down, dropout_up,
     c1 = conv_batch(img, n_filters, batch_norm, activation_fct, kernel_size)
     p1 = MaxPooling2D((2, 2))(c1)
     d1 = Dropout(dropout_down)(p1)
-
+   
     c2 = conv_batch(d1, n_filters*2, batch_norm, activation_fct, kernel_size)
     p2 = MaxPooling2D((2, 2))(c2)
     d2 = Dropout(dropout_down)(p2)
-
+    d2=p2
     c3 = conv_batch(d2, n_filters*4, batch_norm, activation_fct, kernel_size)
     p3 = MaxPooling2D((2, 2))(c3)
     d3 = Dropout(dropout_down)(p3)
-
+    d3=p3
     c4 = conv_batch(d3, n_filters*8, batch_norm, activation_fct, kernel_size)
     p4 = MaxPooling2D((2, 2))(c4)
     d4 = Dropout(dropout_down)(p4)
-
+    d4=p4
     # bottleneck
     if (dilate):
         dilate1 = Conv2D(n_filters*16,3, activation='relu', padding='same', dilation_rate=1, kernel_initializer='he_normal')(d4)
@@ -109,30 +109,29 @@ def build_unet(img, n_filters, dilate,dropout_down, dropout_up,
                           padding='same', kernel_initializer='he_normal')(c5)
     up6 = concatenate([c4, up6], axis=3)
 
-    c6 = Dropout(dropout_up)(up6)
-    c6 = conv_batch(c6, n_filters*8, batch_norm, activation_fct, kernel_size)
 
+    c6 = conv_batch(up6, n_filters*8, batch_norm, activation_fct, kernel_size)
+    c6 = Dropout(dropout_up)(c6)
 
     up7 = Conv2DTranspose(n_filters*4, kernel_size, strides=(2, 2),
                           padding='same', kernel_initializer='he_normal')(c6)
     up7 = concatenate([c3, up7], axis=3)
-    c7 = Dropout(dropout_up)(up7)
-    c7 = conv_batch(c7, n_filters*4, batch_norm, activation_fct, kernel_size)
 
+    c7 = conv_batch(up7, n_filters*4, batch_norm, activation_fct, kernel_size)
+    c7 = Dropout(dropout_up)(c7)
 
     up8 = Conv2DTranspose(n_filters*2, kernel_size, strides=(2, 2),
                           padding='same', kernel_initializer='he_normal')(c7)
     up8 = concatenate([c2, up8], axis=3)
-    c8 = Dropout(dropout_up)(up8)
-    c8 = conv_batch(c8, n_filters*2, batch_norm, activation_fct, kernel_size)
-
+    c8 = conv_batch(up8, n_filters*2, batch_norm, activation_fct, kernel_size)
+    c8 = Dropout(dropout_up)(c8)
 
     up9 = Conv2DTranspose(n_filters, kernel_size, strides=(
         2, 2), padding='same', kernel_initializer='he_normal')(c8)
     up9 = concatenate([c1, up9], axis=3)
-    c9 = Dropout(dropout_up)(up9)
-    c9 = conv_batch(c9, n_filters, batch_norm, activation_fct, kernel_size)
 
+    c9 = conv_batch(up9, n_filters, batch_norm, activation_fct, kernel_size)
+    c9 = Dropout(dropout_up)(c9)
     # final classification
 
     output = Conv2D(1, 1, activation=final_activation)(c9)
