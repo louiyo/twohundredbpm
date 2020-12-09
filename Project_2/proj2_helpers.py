@@ -28,8 +28,66 @@ def load_test_imgs(path):
     print('!!loaded test set in ', path)
     return test_imgs
 
+def predict400(imgs,unet_model):
+      """
+      predict using images of size 400*400 then take the average prediction for the overlapping parts of
+      the test image
+      """
+      predictions=[]
+      for X in imgs:
+        dist=200
+        img1 = X[:400, :400]
+        img2 = X[:400, -400:]
+        img3 = X[-400:, :400]
+        img4 = X[-400:, -400:]
 
-def make_predictions(imgs_test, model, name_of_csv = './submission/submission.csv', foreground_th = 0.55):
+        prediction = np.zeros((X.shape[0], X.shape[1], 1))
+
+        prediction[:400, :400] += unet_model.predict(img1)
+        prediction[:400, -400:] += unet_model.predict(img2)
+        prediction[-400:, :400] += unet_model.predict(img3)
+        prediction[-400:, -400:] += unet_model.predict(img4)
+
+        #1 and 3
+        prediction[dist: 600-dist, :dist] = prediction[dist: 600-dist, :dist]/2.0
+
+        #2 and 4
+        prediction[dist: 600-dist, 600-dist:] = prediction[dist: 600-dist, 600-dist:] /2.0
+
+        #1 and 2
+        prediction[:dist, dist:600-dist] = prediction[:dist, dist:600-dist]/2.0
+
+        #3 and 4
+        prediction[600-dist:, dist:600-dists] = prediction[600-dist:, dist:600-dist]/2.0
+
+        #1 and 2 and 3 and 4
+        prediction[dist:600-dist, dist:600-dist] = prediction[dist:600-dist, dist:600-dist]/4.0
+
+        predictions.append(prediction)
+
+
+      return predictions
+
+
+
+
+def make_predictions400(imgs_test, model, name_of_csv = './submission/submission.csv', foreground_th = 0.55):
+
+    imgs_preds = predict(imgs_test,model)
+    imgs_pred[imgs_pred <= foreground_th] = 0
+    imgs_pred[imgs_pred > foreground_th] = 1
+
+
+    img_patches = [img_crop(img, PATCH_SIZE, PATCH_SIZE) for img in imgs_pred]
+    img_patches = np.asarray([img_patches[i][j] for i in range(len(img_patches)) for j in range(len(img_patches[i]))])
+    preds = np.asarray([patch_to_label(np.mean(img_patches[i])) for i in range(len(img_patches))])
+
+    create_submission(preds, name_of_csv)
+    masks_to_submission(name_of_csv, preds)
+
+
+
+def make_predictions608(imgs_test, model, name_of_csv = './submission/submission.csv', foreground_th = 0.55):
     
     imgs_pred = model.predict(np.asarray(imgs_test), batch_size = 1, verbose = 1)
     imgs_pred[imgs_pred <= foreground_th] = 0
