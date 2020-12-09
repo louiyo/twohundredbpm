@@ -16,7 +16,6 @@ ACTIV_FCT = 'relu'
 FINAL_ACT = 'sigmoid'
 KERNEL_SIZE = (3, 3)
 EPOCHS = 200
-#STEPS_PER_EPOCH = 400
 MODEL_FILEPATH = './checkpoints/new_model.h5'
 TEST_IMGS_PATH = './test_set_images/'
 SUBMISSION_PATH = './submission/new_submission.csv'
@@ -27,36 +26,44 @@ DILATION = False
 
 
 
-def run_(train = False, save_imgs = False):
-
-    if(not train):
-        input_size = Input((IMG_HEIGHT, IMG_WIDTH, IMG_CHANNELS))
-        model =build_unet(input_size,
-                            n_filters=N_FILTERS,
-                            dropout_down=DROPOUT_DOWN,
-                            dropout_up=DROPOUT_UP,
-                            batch_norm=True,
-                            activation_fct=ACTIV_FCT,
-                            final_activation=FINAL_ACT,
-                            kernel_size=KERNEL_SIZE,
-                            dilate = DILATION)
-        model.load_weights('./checkpoints/bestmodel.h5')
-        print('loaded weigths from ', 'bestmodel.h5')
+def run_(train = False, use_VGG = False, save_imgs = False, upscale=False):
+    #If upscaling is used, training images are padded with a mirror reflection.
+    if(upscale): img_size=608
+    else: img_size=400
+    if(use_VGG):
+        vgg = Vgg16(validation_set = True)
+        vgg.construct_existing_model()
     else:
-        print('beginning training')
-        X_train,X_test,Y_train,Y_test=preprocess()
+        if(not train):
+            input_size = Input((img_size, img_size, IMG_CHANNELS))
+            model = build_unet(input_size,
+                                n_filters=N_FILTERS,
+                                dropout_down=DROPOUT_DOWN,
+                                dropout_up=DROPOUT_UP,
+                                batch_norm=True,
+                                activation_fct=ACTIV_FCT,
+                                final_activation=FINAL_ACT,
+                                kernel_size=KERNEL_SIZE,
+                                dilate=DILATION)
+            model.load_weights('./checkpoints/bestmodel.h5')
+            print('loaded weigths from ', 'bestmodel.h5')
+        else:
+            print('beginning training')
+            X_train, Y_train = preprocess(divide_set=False,
+                                         save_imgs = save_imgs,
+                                         upscale_to_test_size=upscale)
 
-        model = train_model(X_train, Y_train,X_test,Y_test)
+            model = train_model(X_train, Y_train, img_size)
 
-    #imgs_test = load_test_imgs(TEST_IMGS_PATH)
+        imgs_test = load_test_imgs(TEST_IMGS_PATH)
 
-    print("making predictions...")
-    #make_predictions(imgs_test, model)
-    print("created submission")
+        print("making predictions...")
+        make_predictions(imgs_test, model, img_size)
+        print("created submission")
 
 
 
-def train_model(X_train, Y_train,X_test,Y_test):
+def train_model(X_train, Y_train, img_size):
 
     cp = ModelCheckpoint(filepath=MODEL_FILEPATH,
                         verbose=1,
@@ -76,7 +83,7 @@ def train_model(X_train, Y_train,X_test,Y_test):
 
     model_tools = [cp,es]
 
-    input_size = Input((IMG_HEIGHT, IMG_WIDTH, IMG_CHANNELS))
+    input_size = Input((img_size, img_size, IMG_CHANNELS))
 
     unet_model = build_unet(input_size,
                             n_filters=N_FILTERS,
