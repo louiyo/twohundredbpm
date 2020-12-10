@@ -70,7 +70,7 @@ def predict(imgs,unet_model):
 def make_predictions(imgs_test, model, img_size, name_of_csv = './submission/submission.csv', foreground_th = 0.55):
 
     if(img_size==400):
-        imgs_preds = predict400(imgs_test,model)
+        imgs_preds = predict(imgs_test,model)
     elif(img_size==608): imgs_pred = model.predict(np.asarray(imgs_test), batch_size = 1, verbose = 1)
     
     imgs_preds=np.asarray(imgs_preds)
