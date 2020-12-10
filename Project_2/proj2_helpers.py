@@ -17,7 +17,7 @@ def load_image(infilename):
     data = mpimg.imread(infilename)
     return data
 
-
+''' ###### New need to use this f up load_test_imgs, hopefully the one below performs better ! 
 def load_test_imgs(path):
     test_imgs = []
     for image_dir in os.listdir(path):
@@ -27,15 +27,14 @@ def load_test_imgs(path):
     test_imgs = np.stack(test_imgs, axis = 0)
     print('!!loaded test set in ', path)
     return test_imgs
-
-# leave it: peut être que le problème est dans load test images
-#def load_test_imgs(path):
-#for i in range(1, num_image+1):
-#        img = io.imread(os.path.join(path, "test_%d"%i, "test_%d.png"%i))
-        
-#        img = np.reshape(img,(1,)+img.shape)
-#        yield img
-
+'''
+def load_test_imgs(path):
+    test_imgs = []
+    for i in range(1,51):
+        test_img = img_to_array(load_img(os.path.join(path, "test_%d"%i, "test_%d.png"%i)))
+        test_imgs.append(test_img)
+    
+    return np.array(test_imgs)
 
 def predict(imgs,unet_model):
     width = 608
@@ -44,7 +43,6 @@ def predict(imgs,unet_model):
     print('imgs',imgs.shape)
     for img in imgs:
         img1 = img[:400, :400]
-        print(img1.shape)
         img1=img1.reshape(1,400,400,3)
         img2 = img[:400, -400:]
         img2=img2.reshape(1,400,400,3)
@@ -52,7 +50,13 @@ def predict(imgs,unet_model):
         img3=img3.reshape(1,400,400,3)
         img4 = img[-400:, -400:]
         img4=img4.reshape(1,400,400,3)
-    
+        
+        #reshaping to meet model's tensor size input (1,400,400,3)
+        img1 = np.reshape(img1,(1,)+img1.shape)
+        img2 = np.reshape(img2,(1,)+img2.shape)
+        img3 = np.reshape(img3,(1,)+img3.shape)
+        img4 = np.reshape(img4,(1,)+img4.shape)
+        
         prediction = np.zeros((width, height, 1))
         prediction[:400, :400] = unet_model.predict(img1)
         prediction[:400, -400:] = unet_model.predict(img2)
