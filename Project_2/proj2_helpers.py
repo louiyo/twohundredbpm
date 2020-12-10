@@ -42,14 +42,13 @@ def predict(imgs,unet_model):
     predictions=[]
     print('imgs',imgs.shape)
     for img in imgs:
+        
+        #dividing image in 4 different images
         img1 = img[:400, :400]
-        img1=img1.reshape(1,400,400,3)
         img2 = img[:400, -400:]
-        img2=img2.reshape(1,400,400,3)
         img3 = img[-400:, :400]
-        img3=img3.reshape(1,400,400,3)
         img4 = img[-400:, -400:]
-        img4=img4.reshape(1,400,400,3)
+        
         
         #reshaping to meet model's tensor size input (1,400,400,3)
         img1 = np.reshape(img1,(1,)+img1.shape)
