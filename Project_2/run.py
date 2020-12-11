@@ -20,7 +20,7 @@ MODEL_FILEPATH = './checkpoints/new_model.h5'
 TEST_IMGS_PATH = './test_set_images/'
 SUBMISSION_PATH = './submission/new_submission.csv'
 BATCH_SIZE = 8
-DILATION = False
+DILATION = True
 
 
 
@@ -81,7 +81,7 @@ def train_model(X_train, Y_train, img_size):
                         patience=20,
                         mode='min')
 
-    model_tools = [cp,es]
+    model_tools = [cp,es,lr]
 
     input_size = Input((img_size, img_size, IMG_CHANNELS))
 
@@ -103,7 +103,7 @@ def train_model(X_train, Y_train, img_size):
                                 recall_m])
 
     unet_model.fit(X_train, Y_train,
-                   validation_split=0.1,
+                   validation_split=0.15,
                    batch_size=BATCH_SIZE,
                    epochs=EPOCHS,
                    callbacks=model_tools)
