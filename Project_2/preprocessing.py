@@ -6,21 +6,11 @@ from proj2_helpers import img_float_to_uint8
 TEST_IMG_SIZE = 608
 TRAIN_IMG_SIZE = 400
 
-
-def pad_test_single(img):
-    size_diff = int((TEST_IMG_SIZE - img.shape[0]))
-    return np.pad(img, pad_width = ((0, size_diff), 
-                (0, size_diff), (0,0)), mode='symmetric')
-    
 def pad_single(img):
     size_diff = int((TEST_IMG_SIZE - img.shape[0]) / 2)
     return np.pad(img, pad_width = ((size_diff, size_diff), 
                 (size_diff, size_diff), (0,0)), mode='symmetric')
-    
-def pad_entire_array(img_arr):
-    size_diff = int((TEST_IMG_SIZE - img.shape[0]) / 2)
-    return np.pad(img_arr, pad_width = ((0,0), (size_diff, size_diff), 
-                (size_diff, size_diff), (0,0)), mode='symmetric')
+   
 
 # A voir comment utiliser ce machin
 
@@ -44,8 +34,8 @@ def preprocess(root_dir='./training/',
         print("processing image ", i+1, "/", len(images))
             
         if(upscale_to_test_size):
-            imgs_aug.append(pad_test_single(img_to_array(img_)))
-            gt_imgs_aug.append((pad_test_single(img_to_array(gt_img_))))
+            imgs_aug.append(pad_single(img_to_array(img_)))
+            gt_imgs_aug.append((pad_single(img_to_array(gt_img_))))
         else: 
             imgs_aug.append(img_to_array(img_))
             gt_imgs_aug.append(img_to_array(gt_img_))
@@ -56,12 +46,8 @@ def preprocess(root_dir='./training/',
             img, gt_img = img_to_array(img), img_to_array(gt_img)
             
             if(upscale_to_test_size):
-                size_diff = TEST_IMG_SIZE - img.shape[0]
-                img = pad_single(img) 
-                gt_img = pad_single(gt_img) 
-            print(img.shape, gt_img.shape)
-            imgs_aug.append(img)
-            gt_imgs_aug.append(gt_img)
+                img = pad_single(pad_single(img)) 
+                gt_img = pad_single(pad_single(gt_img)) 
             if(save_imgs):
                 array_to_img(img).save(images_dir + 'augmented' + str(j) + file_)
                 array_to_img(gt_img).save(gt_dir + 'augmented' + str(j) + file_)
