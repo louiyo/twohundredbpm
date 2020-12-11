@@ -17,7 +17,7 @@ import PIL.ImageOps
 import PIL.ImageEnhance
 import PIL.ImageDraw
 from skimage.util import random_noise
-from keras.preprocessing.image import ImageDataGenerator, load_img, img_to_array, array_to_img
+from keras.preprocessing.image import load_img, img_to_array, array_to_img
 import tensorflow as tf
 
 
@@ -47,33 +47,28 @@ def roll(original_imgs, delta):
 
 
 def random_crop(imgs, v):
-    size = 16 * round(v*imgs[0].size[0]/16)
+    crop_size = int( 16 * round(v*imgs[0].width / 16))
+    size = tf.constant([crop_size, crop_size], dtype=tf.int32)
     image, gt = img_to_array(imgs[0]), img_to_array(imgs[1])
 
     combined = tf.concat([image, gt], axis=2)
     image_shape = tf.shape(image)
     combined_pad = tf.image.pad_to_bounding_box(
-        combined, 0, 0,
-        tf.maximum(size, image_shape[0]),
-        tf.maximum(size, image_shape[1]))
+        combined, 0, 0, image_shape[0], image_shape[1])
+        #tf.maximum(size, image_shape[0]),
+        #tf.maximum(size, image_shape[1]))
     last_label_dim = tf.shape(gt)[-1]
     last_image_dim = tf.shape(image)[-1]
     combined_crop = tf.image.random_crop(
         combined_pad,
-        size=tf.concat([(size, size), [last_label_dim + last_image_dim]],
-                       axis=0))
+        size=tf.concat([size, [last_label_dim + last_image_dim]],
+                     axis=0))
     img_cropped_1 = array_to_img(combined_crop[:, :, :last_image_dim])
     img_cropped_2 = array_to_img(combined_crop[:, :, last_image_dim:])
     return img_cropped_1, img_cropped_2
 
 
 def Rotate(imgs, v):
-    if random.random() > 0.5:
-        v = 90
-    else:
-        v = 180
-    if random.random() > 0.5:
-        v = -v
     return imgs[0].rotate(v), imgs[1].rotate(v)
 
 
@@ -81,27 +76,13 @@ def AutoContrast(imgs, _):
     return PIL.ImageOps.autocontrast(imgs[0]), imgs[1]
 
 
-def Equalize(imgs, _):
-    return PIL.ImageOps.equalize(imgs[0]), imgs[1]
-
 
 def Flip(imgs, _):
     return PIL.ImageOps.mirror(imgs[0]), PIL.ImageOps.mirror(imgs[1])
 
 
-def Solarize(imgs, v):
-    assert 0 <= v <= 256
-    return PIL.ImageOps.solarize(imgs[0], v), imgs[1]
-
-
 def Posterize(imgs, v):  # [4, 8]
     assert 4 <= v <= 8
-    v = int(v)
-    return PIL.ImageOps.posterize(imgs[0], v), imgs[1]
-
-
-def Posterize2(imgs, v):  # [0, 4]
-    assert 0 <= v <= 4
     v = int(v)
     return PIL.ImageOps.posterize(imgs[0], v), imgs[1]
 
@@ -132,13 +113,13 @@ def augment_list():  # Operations and their ranges
         (Rotate, 0, 180),
         (AutoContrast, 0, 1),
         (Contrast, 0.5, 1.0),
-        (roll, 75, 300),
-        (add_noise, 0.02, 0.1),
-        (Posterize, 4, 8),
+        #(roll, 75, 300),
+        (add_noise, 0.02, 0.04),
+        #(Posterize, 4, 8),
         (Brightness, 0.1, 1.9),
         (Sharpness, 0.1, 1.9),
-        #(random_crop, 0.5, 0.9)
     ]
+
 
 class RandAugment:
     def __init__(self, n, m, upscale_to_test_size = False):
@@ -146,7 +127,7 @@ class RandAugment:
         self.m = m      # [0, 30]
         self.augment_list = augment_list()
         if(upscale_to_test_size):
-            self.augment_list.append((random_crop, 0.7, 1))
+            self.augment_list.append((random_crop, 0.8, 1))
 
     def augment(self, imgs):
         # IMPORTANT : imgs should be a tuple containing
@@ -158,4 +139,3 @@ class RandAugment:
             imgs = (img1, img2)
 
         return imgs[0], imgs[1]
-
