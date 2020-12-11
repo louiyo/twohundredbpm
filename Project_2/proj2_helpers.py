@@ -13,21 +13,6 @@ PATCH_SIZE = 16
 # Helper functions
 
 
-def load_image(infilename):
-    data = mpimg.imread(infilename)
-    return data
-
-''' ###### New need to use this f up load_test_imgs, hopefully the one below performs better ! 
-def load_test_imgs(path):
-    test_imgs = []
-    for image_dir in os.listdir(path):
-        for img in os.listdir(path + image_dir):
-            test_img = img_to_array(load_img(path + image_dir + '/' + img))
-            test_imgs.append(test_img)
-    test_imgs = np.stack(test_imgs, axis = 0)
-    print('!!loaded test set in ', path)
-    return test_imgs
-'''
 def load_test_imgs(path):
     test_imgs = []
     for i in range(1,51):
@@ -40,7 +25,6 @@ def predict(imgs,unet_model):
     width = 608
     height = 608
     predictions=[]
-    print('imgs',imgs.shape)
     for img in imgs:
         
         #dividing image in 4 different images
@@ -142,28 +126,3 @@ def img_crop(im, w, h):
             list_patches.append(im_patch)
     return list_patches
 
-
-def extract_features(img):
-    feat_m = np.mean(img, axis=(0, 1))
-    feat_v = np.var(img, axis=(0, 1))
-    feat = np.append(feat_m, feat_v)
-    return feat
-
-# Extract 2-dimensional features consisting of average gray color as well as variance
-
-
-def extract_features_2d(img):
-    feat_m = np.mean(img)
-    feat_v = np.var(img)
-    feat = np.append(feat_m, feat_v)
-    return feat
-
-# Extract features for a given image
-
-
-def extract_img_features(filename):
-    img = load_image(filename)
-    img_patches = img_crop(img, patch_size, patch_size)
-    X = np.asarray([extract_features_2d(img_patches[i])
-                    for i in range(len(img_patches))])
-    return X
