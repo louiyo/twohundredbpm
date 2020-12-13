@@ -40,7 +40,7 @@ def preprocess(root_dir='./training/',
             imgs_aug.append(img_to_array(img_))
             gt_imgs_aug.append(img_to_array(gt_img_))
             
-        for j in range(1):
+        for j in range(4):
             img, gt_img = img_.copy(), gt_img_.copy()
             img, gt_img = rdaug.augment((img, gt_img))
             img, gt_img = img_to_array(img), img_to_array(gt_img)
@@ -48,6 +48,10 @@ def preprocess(root_dir='./training/',
             if(upscale_to_test_size):
                 img = pad_single(pad_single(img)) 
                 gt_img = pad_single(pad_single(gt_img)) 
+            
+            imgs_aug.append(img)
+            gt_imgs_aug.append(gt_img)
+            
             if(save_imgs):
                 array_to_img(img).save(images_dir + 'augmented' + str(j) + file_)
                 array_to_img(gt_img).save(gt_dir + 'augmented' + str(j) + file_)
