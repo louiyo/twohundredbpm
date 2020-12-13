@@ -59,9 +59,9 @@ def preprocess(root_dir='./training/',
     if(divide_set == False):
         imgs_aug = np.stack(imgs_aug, axis = 0)
         gt_imgs_aug = np.stack(gt_imgs_aug, axis = 0) / 255.0
-        gt_imgs_aug[Y_train>0.5]=1
-        gt_imgs_aug[Y_train<0.5]=0
-        return (imgs_aug, gt_imgs_aug)
+        gt_imgs_aug[gt_imgs_aug>0.5]=1
+        gt_imgs_aug[gt_imgs_aug<0.5]=0
+        return imgs_aug, gt_imgs_aug
     else:
         X_train, X_test, Y_train, Y_test = train_test_split(imgs_aug, gt_imgs_aug,
                                                             test_size=ratio, random_state=2020)
