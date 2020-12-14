@@ -27,7 +27,7 @@ NUM_FILTERS = 16
 DEPTH = 3
 ALPHA = 0.1
 DROPOUT = 0.5
-
+PATCH_SIZE = 16
 
 
 def run_(train = False, use_VGG = False, use_fractal = False, save_imgs = False, upscale=False):
@@ -40,8 +40,9 @@ def run_(train = False, use_VGG = False, use_fractal = False, save_imgs = False,
     else:
         if(not train):
             input_size = Input((img_size, img_size, IMG_CHANNELS))
+            input_patch_size = Input((PATCH_SIZE, PATCH_SIZE, IMG_CHANNELS))
             if use_fractal:
-                model = build_fract_model(input_size,
+                model = build_fract_model(input_patch_size,
                                           filters = NUM_FILTERS,
                                           dropout = DROPOUT,
                                           depth=DEPTH,
@@ -64,9 +65,6 @@ def run_(train = False, use_VGG = False, use_fractal = False, save_imgs = False,
             X_train, X_test, Y_train, Y_test = preprocess(divide_set=True,
                                          save_imgs = save_imgs,
                                          upscale_to_test_size=upscale)
-            
-            if use_fractal:
-                Y_train = labels_to_hot_matrix(Y_train)
 
             model = train_model(X_train, Y_train, X_test, Y_test, img_size)
 
@@ -99,14 +97,21 @@ def train_model(X_train, Y_train, X_test, Y_test, img_size):
     model_tools = [cp,es,lr]
 
     input_size = Input((img_size, img_size, IMG_CHANNELS))
+    input_patch_size = Input((PATCH_SIZE, PATCH_SIZE, IMG_CHANNELS))
     
     if use_fractal:
-        model = build_fract_model(input_size,
+        model = build_fract_model(input_patch_size,
                                   filters = N_FILTERS,
                                   dropout = DROPOUT,
                                   depth=DEPTH,
                                   alpha = ALPHA,
                                   kernel_size = KERNEL_SIZE)
+        
+        _, X_train = img_to_patch(X_train)
+        X_test_p, X_test = img_to_patch(X_test)
+        _, Y_train = labels_to_hot_matrix(Y_train)
+        Y_test_p, Y_test = labels_to_hot_matrix(Y_test)
+        
     else:
         model = build_unet(input_size,
                            n_filters=N_FILTERS,
@@ -133,6 +138,9 @@ def train_model(X_train, Y_train, X_test, Y_test, img_size):
 
     # fitting the model to the train data
     # evaluating performance of the model
+    if use_fractal:
+        X_test = X_test_p
+    
     print("evaluating performance of the model")
     print(model.evaluate(X_test, Y_test))
     return model
