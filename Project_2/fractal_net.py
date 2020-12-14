@@ -14,6 +14,21 @@ ALPHA = 0.1
 DEPTH = 3
 PATCH_SIZE = 16
 
+foreground_th = 0.25
+
+def to_prediction(img):
+    # data = np.asarray([img_crop(img_, PATCH_SIZE, PATCH_SIZE) for img_ in img])
+    data = [np.asarray(img_crop(img_, PATCH_SIZE, PATCH_SIZE)) for img_ in img]
+
+    return data
+
+def img_to_patch(img):
+    img_patches = [img_crop(img_, PATCH_SIZE, PATCH_SIZE) for img_ in img]
+    data = [img_patches[i][j] for i in range(len(img_patches)) for j in range(len(img_patches[i]))]
+
+    return img, np.asarray(data)
+    # return np.asarray(data)
+
 def labels_to_hot_matrix(labels):
     """
         Convert labels to one hot matrix.
@@ -23,14 +38,15 @@ def labels_to_hot_matrix(labels):
 
     labels = np.asarray([patch_to_label(np.mean(gt_patches[i])) for i in range(len(gt_patches))])
 
-    return labels.astype(np.float32)
+    return np.rint(labels), labels.astype(np.float32)
+    # return labels.astype(np.float32)
 
 def label_to_img(labels, width, height, patch_size = PATCH_SIZE):
     prediction = np.zeros([width, height])
     idx = 0
     for i in range(0,imgheight, patch_size):
         for j in range(0,imgwidth, patch_size):
-            if labels[idx][0] > 0.5:
+            if labels[idx][0] > foreground_th:
                 l = 1
             else:
                 l = 0
