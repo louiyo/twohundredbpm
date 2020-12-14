@@ -46,8 +46,8 @@ def preprocess(root_dir='./training/',
             img, gt_img = img_to_array(img), img_to_array(gt_img)
             
             if(upscale_to_test_size):
-                img = pad_single(pad_single(img)) 
-                gt_img = pad_single(pad_single(gt_img)) 
+                img = pad_single(img)
+                gt_img = pad_single(gt_img)
             
             imgs_aug.append(img)
             gt_imgs_aug.append(gt_img)
