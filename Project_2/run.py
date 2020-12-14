@@ -138,9 +138,6 @@ def train_model(X_train, Y_train, X_test, Y_test, img_size):
 
     # fitting the model to the train data
     # evaluating performance of the model
-    if use_fractal:
-        X_test = X_test_p
-    
     print("evaluating performance of the model")
     print(model.evaluate(X_test, Y_test))
     return model
