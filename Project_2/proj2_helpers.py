@@ -40,10 +40,10 @@ def predict(imgs,unet_model, use_fractal = False):
         img4 = np.reshape(img4,(1,)+img4.shape)
         
         if use_fractal:
-            img1 = to_prediction(img1)
-            img2 = to_prediction(img2)
-            img3 = to_prediction(img3)
-            img4 = to_prediction(img4)
+            img1 = img_to_patch(img1)
+            img2 = img_to_patch(img2)
+            img3 = img_to_patch(img3)
+            img4 = img_to_patch(img4)
         
         prediction = np.zeros((width, height, 1))
         prediction[:400, :400] = unet_model.predict(img1)
@@ -59,10 +59,10 @@ def predict(imgs,unet_model, use_fractal = False):
 def make_predictions(imgs_test, model, img_size, name_of_csv = './submission/submission.csv', foreground_th = 0.55, use_fractal = False):
 
     if(img_size==400):
-        imgs_preds = predict(imgs_test,model)
+        imgs_preds = predict(imgs_test,model, use_fractal = use_fractal)
     elif(img_size==608): 
         if use_fractal:
-            imgs_test = to_prediction(imgs_test)
+            imgs_test = img_to_patch(imgs_test)
         imgs_pred = model.predict(np.asarray(imgs_test), batch_size = 1, verbose = 1)
     
   
