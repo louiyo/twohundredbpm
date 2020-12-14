@@ -21,7 +21,7 @@ def load_test_imgs(path):
     
     return np.array(test_imgs)
 
-def predict(imgs,unet_model):
+def predict(imgs,unet_model, use_fractal = False):
     width = 608
     height = 608
     predictions=[]
@@ -33,12 +33,17 @@ def predict(imgs,unet_model):
         img3 = img[-400:, :400]
         img4 = img[-400:, -400:]
         
-        
         #reshaping to meet model's tensor size input (1,400,400,3)
         img1 = np.reshape(img1,(1,)+img1.shape)
         img2 = np.reshape(img2,(1,)+img2.shape)
         img3 = np.reshape(img3,(1,)+img3.shape)
         img4 = np.reshape(img4,(1,)+img4.shape)
+        
+        if use_fractal:
+            img1 = to_prediction(img1)
+            img2 = to_prediction(img2)
+            img3 = to_prediction(img3)
+            img4 = to_prediction(img4)
         
         prediction = np.zeros((width, height, 1))
         prediction[:400, :400] = unet_model.predict(img1)
@@ -55,15 +60,18 @@ def make_predictions(imgs_test, model, img_size, name_of_csv = './submission/sub
 
     if(img_size==400):
         imgs_preds = predict(imgs_test,model)
-    elif(img_size==608): imgs_pred = model.predict(np.asarray(imgs_test), batch_size = 1, verbose = 1)
+    elif(img_size==608): 
+        if use_fractal:
+            imgs_test = to_prediction(imgs_test)
+        imgs_pred = model.predict(np.asarray(imgs_test), batch_size = 1, verbose = 1)
     
-    imgs_preds=np.asarray(imgs_preds)
-    imgs_preds[imgs_preds <= foreground_th] = 0
-    imgs_preds[imgs_preds > foreground_th] = 1
-    print("ones",len(imgs_preds[imgs_preds==1]))
-    print("zeros",len(imgs_preds[imgs_preds==0]))
-    
+  
     if not use_fractal:
+        imgs_preds=np.asarray(imgs_preds)
+        imgs_preds[imgs_preds <= foreground_th] = 0
+        imgs_preds[imgs_preds > foreground_th] = 1
+        print("ones",len(imgs_preds[imgs_preds==1]))
+        print("zeros",len(imgs_preds[imgs_preds==0]))
         img_patches = [img_crop(img, PATCH_SIZE, PATCH_SIZE) for img in imgs_preds]
         img_patches = np.asarray([img_patches[i][j] for i in range(len(img_patches)) for j in range(len(img_patches[i]))])
         preds = np.asarray([patch_to_label(np.mean(img_patches[i])) for i in range(len(img_patches))])
