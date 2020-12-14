@@ -51,7 +51,7 @@ def predict(imgs,unet_model):
 
 
 
-def make_predictions(imgs_test, model, img_size, name_of_csv = './submission/submission.csv', foreground_th = 0.55):
+def make_predictions(imgs_test, model, img_size, name_of_csv = './submission/submission.csv', foreground_th = 0.55, use_fractal = False):
 
     if(img_size==400):
         imgs_preds = predict(imgs_test,model)
@@ -62,9 +62,13 @@ def make_predictions(imgs_test, model, img_size, name_of_csv = './submission/sub
     imgs_preds[imgs_preds > foreground_th] = 1
     print("ones",len(imgs_preds[imgs_preds==1]))
     print("zeros",len(imgs_preds[imgs_preds==0]))
-    img_patches = [img_crop(img, PATCH_SIZE, PATCH_SIZE) for img in imgs_preds]
-    img_patches = np.asarray([img_patches[i][j] for i in range(len(img_patches)) for j in range(len(img_patches[i]))])
-    preds = np.asarray([patch_to_label(np.mean(img_patches[i])) for i in range(len(img_patches))])
+    
+    if not use_fractal:
+        img_patches = [img_crop(img, PATCH_SIZE, PATCH_SIZE) for img in imgs_preds]
+        img_patches = np.asarray([img_patches[i][j] for i in range(len(img_patches)) for j in range(len(img_patches[i]))])
+        preds = np.asarray([patch_to_label(np.mean(img_patches[i])) for i in range(len(img_patches))])
+    else:
+        preds = img_preds.copy()
     
     create_submission(preds, name_of_csv, img_size)
     
