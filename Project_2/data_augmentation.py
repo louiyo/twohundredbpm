@@ -6,6 +6,7 @@
     https://arxiv.org/abs/1909.13719
 """
 
+
 import matplotlib.image as mpimg
 import numpy as np
 import matplotlib.pyplot as plt
@@ -16,6 +17,7 @@ import PIL
 import PIL.ImageOps
 import PIL.ImageEnhance
 import PIL.ImageDraw
+from scipy.ndimage import rotate
 from skimage.util import random_noise
 from keras.preprocessing.image import load_img, img_to_array, array_to_img
 import tensorflow as tf
@@ -30,6 +32,9 @@ def add_noise(imgs, v):
 
 def roll(original_imgs, delta):
     """Roll an image sideways."""
+    
+    delta = random.randint(75, 300)
+    
     def roll_single(img, delta):
         xsize, ysize = img.size
         part1 = img.crop((0, 0, delta, ysize))
@@ -55,8 +60,6 @@ def random_crop(imgs, v):
     image_shape = tf.shape(image)
     combined_pad = tf.image.pad_to_bounding_box(
         combined, 0, 0, image_shape[0], image_shape[1])
-        #tf.maximum(size, image_shape[0]),
-        #tf.maximum(size, image_shape[1]))
     last_label_dim = tf.shape(gt)[-1]
     last_image_dim = tf.shape(image)[-1]
     combined_crop = tf.image.random_crop(
@@ -68,9 +71,11 @@ def random_crop(imgs, v):
     return img_cropped_1, img_cropped_2
 
 
-def Rotate(imgs, v):
-    return imgs[0].rotate(v), imgs[1].rotate(v)
-
+def Rotate(imgs, _):
+    v = random.randrange(0,180,1)
+    img1 = array_to_img(rotate(img_to_array(imgs[0]), v, reshape=False))
+    img2 = array_to_img(rotate(img_to_array(imgs[1]), v, reshape=False))
+    return img1, img2
 
 def AutoContrast(imgs, _):
     return PIL.ImageOps.autocontrast(imgs[0]), imgs[1]
@@ -79,13 +84,7 @@ def AutoContrast(imgs, _):
 
 def Flip(imgs, _):
     return PIL.ImageOps.mirror(imgs[0]), PIL.ImageOps.mirror(imgs[1])
-
-
-def Posterize(imgs, v):  # [4, 8]
-    assert 4 <= v <= 8
-    v = int(v)
-    return PIL.ImageOps.posterize(imgs[0], v), imgs[1]
-
+    
 
 def Contrast(imgs, v):  # [0.1,1.9]
     assert 0.5 <= v <= 1.0
@@ -105,7 +104,6 @@ def Sharpness(imgs, v):  # [0.1,1.9]
 def Identity(imgs, v):
     return imgs
 
-
 def augment_list():  # Operations and their ranges
     return [
         (Identity, 0., 1.0),
@@ -113,9 +111,8 @@ def augment_list():  # Operations and their ranges
         (Rotate, 0, 180),
         (AutoContrast, 0, 1),
         (Contrast, 0.5, 1.0),
-        #(roll, 75, 300),
-        (add_noise, 0.02, 0.04),
-        #(Posterize, 4, 8),
+        (roll, 75, 300),
+        (add_noise, 0.02, 0.025),
         (Brightness, 0.1, 1.9),
         (Sharpness, 0.1, 1.9),
     ]
@@ -127,7 +124,7 @@ class RandAugment:
         self.m = m      # [0, 30]
         self.augment_list = augment_list()
         if(upscale_to_test_size):
-            self.augment_list.append((random_crop, 0.8, 1))
+            self.augment_list.append((random_crop, 0.6, 0.9))
 
     def augment(self, imgs):
         # IMPORTANT : imgs should be a tuple containing
