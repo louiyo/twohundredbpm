@@ -13,7 +13,7 @@ def pad_single(img):
    
 def preprocess(root_dir='./training/',
                divide_set=True,
-               ratio=0.1,
+               ratio=0.15,
                upscale_to_test_size=False,):
     images_dir = root_dir + 'images/'
     gt_dir = root_dir + 'groundtruth/'
@@ -21,7 +21,7 @@ def preprocess(root_dir='./training/',
 
     images = [PIL.Image.open(images_dir + img) for img in files]
     gt_images = [PIL.Image.open(gt_dir + img) for img in files]
-    rdaug = RandAugment(5, 12, upscale_to_test_size)
+    rdaug = RandAugment(6, 12, upscale_to_test_size)
     
     imgs_aug = []
     gt_imgs_aug = []
@@ -36,7 +36,7 @@ def preprocess(root_dir='./training/',
             imgs_aug.append(img_to_array(img_))
             gt_imgs_aug.append(img_to_array(gt_img_))
             
-        for j in range(5):
+        for j in range(6):
             img, gt_img = img_.copy(), gt_img_.copy()
             img, gt_img = rdaug.augment((img, gt_img))
             img, gt_img = img_to_array(img), img_to_array(gt_img)
