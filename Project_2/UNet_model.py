@@ -44,15 +44,15 @@ def build_unet(img, n_filters, dilate,dropout_down, dropout_up,
     c2 = conv_batch(d1, n_filters*2, batch_norm, activation_fct, kernel_size)
     p2 = MaxPooling2D((2, 2))(c2)
     d2 = Dropout(dropout_down)(p2)
-    d2=p2
+    
     c3 = conv_batch(d2, n_filters*4, batch_norm, activation_fct, kernel_size)
     p3 = MaxPooling2D((2, 2))(c3)
     d3 = Dropout(dropout_down)(p3)
-    d3=p3
+    
     c4 = conv_batch(d3, n_filters*8, batch_norm, activation_fct, kernel_size)
     p4 = MaxPooling2D((2, 2))(c4)
     d4 = Dropout(dropout_down)(p4)
-    d4=p4
+    
     # bottleneck
     if (dilate):
         dilate1 = Conv2D(n_filters*16,3, activation='relu', padding='same', dilation_rate=1, kernel_initializer='he_normal')(d4)
@@ -79,7 +79,7 @@ def build_unet(img, n_filters, dilate,dropout_down, dropout_up,
     else:
         c5 = conv_batch(d4, n_filters*16, batch_norm, activation_fct, kernel_size)
 
-    #bottleneck with dilation
+    
 
 
 
