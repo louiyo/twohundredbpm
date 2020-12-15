@@ -11,12 +11,12 @@ from fractal_net import *
 IMG_HEIGHT = IMG_WIDTH = 400
 IMG_CHANNELS = 3
 N_FILTERS = 32
-DROPOUT_DOWN = 0.4
-DROPOUT_UP = 0.4
+DROPOUT_DOWN = 0.0
+DROPOUT_UP = 0.0
 ACTIV_FCT = 'relu'
 FINAL_ACT = 'sigmoid'
 KERNEL_SIZE = (3, 3)
-EPOCHS = 200
+EPOCHS = 100
 MODEL_FILEPATH = './checkpoints/new_model.h5'
 TEST_IMGS_PATH = './test_set_images/'
 SUBMISSION_PATH = './submission/new_submission.csv'
@@ -30,7 +30,7 @@ DROPOUT = 0.5
 PATCH_SIZE = 16
 
 
-def run_(train = False, use_VGG = False, use_fractal = False, save_imgs = False, upscale=False):
+def run_(train = False, use_VGG = False, use_fractal = False, upscale=False):
     #If upscaling is used, training images are padded with a mirror reflection.
     if(upscale): img_size=608
     else: img_size=400
@@ -63,7 +63,6 @@ def run_(train = False, use_VGG = False, use_fractal = False, save_imgs = False,
         else:
             print('beginning training')
             X_train, X_test, Y_train, Y_test = preprocess(divide_set=True,
-                                         save_imgs = save_imgs,
                                          upscale_to_test_size=upscale)
 
             model = train_model(X_train, Y_train, X_test, Y_test, img_size)
