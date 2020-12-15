@@ -11,14 +11,10 @@ def pad_single(img):
     return np.pad(img, pad_width = ((size_diff, size_diff), 
                 (size_diff, size_diff), (0,0)), mode='symmetric')
    
-
-# A voir comment utiliser ce machin
-
 def preprocess(root_dir='./training/',
                divide_set=True,
                ratio=0.1,
-               upscale_to_test_size=False,
-               save_imgs = False):
+               upscale_to_test_size=False,):
     images_dir = root_dir + 'images/'
     gt_dir = root_dir + 'groundtruth/'
     files = os.listdir(images_dir)
@@ -40,7 +36,7 @@ def preprocess(root_dir='./training/',
             imgs_aug.append(img_to_array(img_))
             gt_imgs_aug.append(img_to_array(gt_img_))
             
-        for j in range(4):
+        for j in range(5):
             img, gt_img = img_.copy(), gt_img_.copy()
             img, gt_img = rdaug.augment((img, gt_img))
             img, gt_img = img_to_array(img), img_to_array(gt_img)
@@ -51,10 +47,6 @@ def preprocess(root_dir='./training/',
             
             imgs_aug.append(img)
             gt_imgs_aug.append(gt_img)
-            
-            if(save_imgs):
-                array_to_img(img).save(images_dir + 'augmented' + str(j) + file_)
-                array_to_img(gt_img).save(gt_dir + 'augmented' + str(j) + file_)
 
     if(divide_set == False):
         imgs_aug = np.stack(imgs_aug, axis = 0)
