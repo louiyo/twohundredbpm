@@ -63,7 +63,7 @@ def make_predictions(imgs_test, model, img_size, name_of_csv = './submission/sub
     elif(img_size==608): 
         if use_fractal:
             imgs_test = img_to_patch(imgs_test)
-        imgs_pred = model.predict(np.asarray(imgs_test), batch_size = 1, verbose = 1)
+        imgs_preds = model.predict(np.asarray(imgs_test), batch_size = 1, verbose = 1)
     
   
     if not use_fractal:
@@ -78,12 +78,12 @@ def make_predictions(imgs_test, model, img_size, name_of_csv = './submission/sub
     else:
         preds = img_preds.copy()
     
-    create_submission(preds, name_of_csv, img_size)
+    create_submission(preds, name_of_csv)
     
     
 
-def create_submission(preds, name_of_csv, img_size):
-    n = img_size // PATCH_SIZE
+def create_submission(preds, name_of_csv):
+    n = 608 // PATCH_SIZE
     preds = np.reshape(preds, (-1, n, n))
     
     with open(name_of_csv, 'w') as f:
