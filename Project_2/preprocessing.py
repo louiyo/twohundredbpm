@@ -14,7 +14,7 @@ def pad_single(img):
 def preprocess(root_dir='./training/',
                divide_set=True,
                ratio=0.15,
-               upscale_to_test_size=False,):
+               upscale_to_test_size=False):
     images_dir = root_dir + 'images/'
     gt_dir = root_dir + 'groundtruth/'
     files = os.listdir(images_dir)
