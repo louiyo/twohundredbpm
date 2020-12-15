@@ -76,6 +76,8 @@ def run_(train = False, use_VGG = False, use_fractal = False, upscale=False):
 
 
 def train_model(X_train, Y_train, X_test, Y_test, img_size):
+    
+    print("Training shape = ", X_train.shape)
 
     cp = ModelCheckpoint(filepath=MODEL_FILEPATH,
                         verbose=1,
@@ -84,59 +86,45 @@ def train_model(X_train, Y_train, X_test, Y_test, img_size):
 
     lr = ReduceLROnPlateau (monitor='val_loss',
                             factor=0.4,
-                            patience=5,
+                            patience=7,
                             verbose=1,
                             mode='min',
-                            min_lr=1e-7)
+                            min_lr=1e-6)
 
     es = EarlyStopping (monitor='val_loss',
-                        patience=20,
+                        patience=15,
                         mode='min')
 
     model_tools = [cp,es,lr]
 
     input_size = Input((img_size, img_size, IMG_CHANNELS))
-    input_patch_size = Input((PATCH_SIZE, PATCH_SIZE, IMG_CHANNELS))
-    
-    if use_fractal:
-        model = build_fract_model(input_patch_size,
-                                  filters = N_FILTERS,
-                                  dropout = DROPOUT,
-                                  depth=DEPTH,
-                                  alpha = ALPHA,
-                                  kernel_size = KERNEL_SIZE)
-        
-        _, X_train = img_to_patch(X_train)
-        X_test_p, X_test = img_to_patch(X_test)
-        _, Y_train = labels_to_hot_matrix(Y_train)
-        Y_test_p, Y_test = labels_to_hot_matrix(Y_test)
-        
-    else:
-        model = build_unet(input_size,
-                           n_filters=N_FILTERS,
-                           dropout_down=DROPOUT_DOWN,
-                           dropout_up=DROPOUT_UP,
-                           batch_norm=True,
-                           activation_fct=ACTIV_FCT,
-                           final_activation=FINAL_ACT,
-                           kernel_size=KERNEL_SIZE,
-                           dilate = DILATION)
 
-    model.compile(optimizer=Adam(lr=1e-4),
-                  loss='binary_crossentropy',
-                  metrics=['binary_accuracy',
-                            f1_m,
-                            precision_m,
-                            recall_m])
+    unet_model = build_unet(input_size,
+                            n_filters=N_FILTERS,
+                            dropout_down=DROPOUT_DOWN,
+                            dropout_up=DROPOUT_UP,
+                            batch_norm=True,
+                            activation_fct=ACTIV_FCT,
+                            final_activation=FINAL_ACT,
+                            kernel_size=KERNEL_SIZE,
+                            dilate = DILATION)
 
-    model.fit(X_train, Y_train,
-              validation_split=0.15,
-              batch_size=BATCH_SIZE,
-              epochs=EPOCHS,
-              callbacks=model_tools)
+    unet_model.compile(optimizer=Adam(lr=1e-4),
+                       loss='binary_crossentropy',
+                       metrics=['binary_accuracy',
+                                f1_m,
+                                precision_m,
+                                recall_m])
+
+    unet_model.fit(X_train, Y_train,
+                   validation_split=0.15,
+                   batch_size=BATCH_SIZE,
+                   epochs=EPOCHS,
+                   callbacks=model_tools)
 
     # fitting the model to the train data
     # evaluating performance of the model
     print("evaluating performance of the model")
-    print(model.evaluate(X_test, Y_test))
-    return model
+    print(unet_model.evaluate(X_test, Y_test))
+    
+    return unet_model
