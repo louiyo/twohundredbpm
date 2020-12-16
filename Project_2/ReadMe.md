@@ -42,13 +42,11 @@ The interesting fact of fractal net over any other construction resides in its a
 
 There is two different way of running the code. The first method consists of doing it on your computer (in local), but you should be aware that neural networks are very **costly computationally**. Hence, if you don't have a powerful computer (with a decent GPU), you should use the second method. You can either choose to run everything, from loading of the data to the construction of the submission file, by using this command in your terminal (make sure you are in the right repository):
 
-<pre><code> python3 run.py -args </code></pre>
+<pre><code> python3 run.py </code></pre>
 
-The args correspond to the arguments of the method run, which will do everything for you. In this manner, you can either choose to train the model, use the fractal model (by default it will use the U-net), and upscale the training data to the test size. However, we don't recomment to upscale to test size for training of models, as it needs then more time to compute.
+By default, it will run with the U-net model. Also you use the fractal model by setting *use_fractal* to True. Last, you can either train the model (which takes time) or directly predict on the evaluation set by changing the value of the boolean parameter *train*. In this manner, you can either choose to train the model, use the fractal model (by default it will use the U-net), and upscale the training data to the test size. However, we don't recomment to upscale to test size for training of models, as it needs then more time to compute.
 
-An other way of running the code can be the **Google Colab**, that we put at your disposition in the link below. To this extent, wou will be allowed to make use of an hosted server of Google, provided with a fine GPU:
-
-**link :** To be Done
+An other way of running the code can be on **Google Colab** with *ML_project2.ipynb*. To this extent, wou will be allowed to make use of an hosted server of Google, provided with a fine GPU.
 
 Also, to use the GPU, you have to enter the **runtime** menu, and then click on **modifying runtime type**. After that, you should be able to select **GPU** for running the code. 
 
@@ -63,5 +61,5 @@ For neural networks:
 - [Tensorflow](https://www.tensorflow.org/?hl=fr)
 
 For image processsing:
-
 - [Pillow](https://pillow.readthedocs.io/en/stable/)
+- [Scipy](https://www.scipy.org)
