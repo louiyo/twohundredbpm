@@ -11,8 +11,8 @@ from fractal_net import *
 IMG_HEIGHT = IMG_WIDTH = 400
 IMG_CHANNELS = 3
 N_FILTERS = 32
-DROPOUT_DOWN = 0.0
-DROPOUT_UP = 0.0
+DROPOUT_DOWN = 0.2
+DROPOUT_UP = 0.2
 ACTIV_FCT = 'relu'
 FINAL_ACT = 'sigmoid'
 KERNEL_SIZE = (3, 3)
@@ -30,52 +30,44 @@ DROPOUT = 0.5
 PATCH_SIZE = 16
 
 
-def run_(train = False, use_VGG = False, use_fractal = False, upscale=False):
-    #If upscaling is used, training images are padded with a mirror reflection.
-    if(upscale): img_size=608
-    else: img_size=400
-    if(use_VGG):
-        vgg = Vgg16(validation_set = True)
-        vgg.construct_existing_model()
+def run_(train = False use_fractal = False):
+    if(not train):
+        input_size = Input((img_size, img_size, IMG_CHANNELS))
+        input_patch_size = Input((PATCH_SIZE, PATCH_SIZE, IMG_CHANNELS))
+        if use_fractal:
+            model = build_fract_model(input_patch_size,
+                                      filters = NUM_FILTERS,
+                                      dropout = DROPOUT,
+                                      depth=DEPTH,
+                                      alpha = ALPHA,
+                                      kernel_size = KERNEL_SIZE)
+        else: 
+            model = build_unet(input_size,
+                                n_filters=N_FILTERS,
+                                dropout_down=DROPOUT_DOWN,
+                                dropout_up=DROPOUT_UP,
+                                batch_norm=True,
+                                activation_fct=ACTIV_FCT,
+                                final_activation=FINAL_ACT,
+                                kernel_size=KERNEL_SIZE,
+                                dilate=DILATION)
+        model.load_weights('./checkpoints/bestmodel.h5')
+        print('loaded weigths from ', 'bestmodel.h5')
     else:
-        if(not train):
-            input_size = Input((img_size, img_size, IMG_CHANNELS))
-            input_patch_size = Input((PATCH_SIZE, PATCH_SIZE, IMG_CHANNELS))
-            if use_fractal:
-                model = build_fract_model(input_patch_size,
-                                          filters = NUM_FILTERS,
-                                          dropout = DROPOUT,
-                                          depth=DEPTH,
-                                          alpha = ALPHA,
-                                          kernel_size = KERNEL_SIZE)
-            else: 
-                model = build_unet(input_size,
-                                    n_filters=N_FILTERS,
-                                    dropout_down=DROPOUT_DOWN,
-                                    dropout_up=DROPOUT_UP,
-                                    batch_norm=True,
-                                    activation_fct=ACTIV_FCT,
-                                    final_activation=FINAL_ACT,
-                                    kernel_size=KERNEL_SIZE,
-                                    dilate=DILATION)
-            model.load_weights('./checkpoints/bestmodel.h5')
-            print('loaded weigths from ', 'bestmodel.h5')
-        else:
-            print('beginning training')
-            X_train, X_test, Y_train, Y_test = preprocess(divide_set=True,
-                                         upscale_to_test_size=upscale)
+        print('beginning training')
+        X_train, X_test, Y_train, Y_test = preprocess()
 
-            model = train_model(X_train, Y_train, X_test, Y_test, img_size)
+        model = train_model(X_train, Y_train, X_test, Y_test)
 
-        imgs_test = load_test_imgs(TEST_IMGS_PATH)
+    imgs_test = load_test_imgs(TEST_IMGS_PATH)
 
-        print("making predictions...")
-        make_predictions(imgs_test, model, img_size, use_fractal = use_fractal)
-        print("created submission")
+    print("making predictions...")
+    make_predictions(imgs_test, model, use_fractal = use_fractal)
+    print("created submission")
 
 
 
-def train_model(X_train, Y_train, X_test, Y_test, img_size):
+def train_model(X_train, Y_train, X_test, Y_test):
     
     print("Training shape = ", X_train.shape)
 
@@ -89,7 +81,7 @@ def train_model(X_train, Y_train, X_test, Y_test, img_size):
                             patience=7,
                             verbose=1,
                             mode='min',
-                            min_lr=1e-6)
+                            min_lr=1e-7)
 
     es = EarlyStopping (monitor='val_loss',
                         patience=15,
@@ -97,7 +89,7 @@ def train_model(X_train, Y_train, X_test, Y_test, img_size):
 
     model_tools = [cp,es,lr]
 
-    input_size = Input((img_size, img_size, IMG_CHANNELS))
+    input_size = Input((IMG_HEIGHT, IMG_WIDTH, IMG_CHANNELS))
 
     unet_model = build_unet(input_size,
                             n_filters=N_FILTERS,
@@ -112,9 +104,7 @@ def train_model(X_train, Y_train, X_test, Y_test, img_size):
     unet_model.compile(optimizer=Adam(lr=1e-4),
                        loss='binary_crossentropy',
                        metrics=['binary_accuracy',
-                                f1_m,
-                                precision_m,
-                                recall_m])
+                                f1_m])
 
     unet_model.fit(X_train, Y_train,
                    validation_split=0.15,
