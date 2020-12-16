@@ -21,6 +21,7 @@ def load_test_imgs(path):
     
     return np.array(test_imgs)
 
+
 def predict(imgs,unet_model, use_fractal = False):
     width = 608
     height = 608
@@ -55,28 +56,19 @@ def predict(imgs,unet_model, use_fractal = False):
     return predictions
 
 
-
-def make_predictions(imgs_test, model, img_size, name_of_csv = './submission/submission.csv', foreground_th = 0.55, use_fractal = False):
-
-    if(img_size==400):
-        imgs_preds = predict(imgs_test,model, use_fractal = use_fractal)
-    elif(img_size==608): 
-        if use_fractal:
-            imgs_test = img_to_patch(imgs_test)
-        imgs_preds = model.predict(np.asarray(imgs_test), batch_size = 1, verbose = 1)
+def make_predictions(imgs_test, model, name_of_csv = './submission/submission.csv', foreground_th = 0.55):
+    imgs_preds = predict(imgs_test,model)
     
-  
-    if not use_fractal:
-        imgs_preds=np.asarray(imgs_preds)
-        imgs_preds[imgs_preds <= foreground_th] = 0
-        imgs_preds[imgs_preds > foreground_th] = 1
-        print("ones",len(imgs_preds[imgs_preds==1]))
-        print("zeros",len(imgs_preds[imgs_preds==0]))
-        img_patches = [img_crop(img, PATCH_SIZE, PATCH_SIZE) for img in imgs_preds]
-        img_patches = np.asarray([img_patches[i][j] for i in range(len(img_patches)) for j in range(len(img_patches[i]))])
-        preds = np.asarray([patch_to_label(np.mean(img_patches[i])) for i in range(len(img_patches))])
-    else:
-        preds = img_preds.copy()
+    imgs_preds=np.asarray(imgs_preds)
+    #return imgs_test, imgs_preds
+    
+    imgs_preds[imgs_preds <= foreground_th] = 0
+    imgs_preds[imgs_preds > foreground_th] = 1
+    print("ones",len(imgs_preds[imgs_preds==1]))
+    print("zeros",len(imgs_preds[imgs_preds==0]))
+    img_patches = [img_crop(img, PATCH_SIZE, PATCH_SIZE) for img in imgs_preds]
+    img_patches = np.asarray([img_patches[i][j] for i in range(len(img_patches)) for j in range(len(img_patches[i]))])
+    preds = np.asarray([patch_to_label(np.mean(img_patches[i])) for i in range(len(img_patches))])
     
     create_submission(preds, name_of_csv)
     
@@ -138,3 +130,28 @@ def img_crop(im, w, h):
             list_patches.append(im_patch)
     return list_patches
 
+
+def extract_features(img):
+    feat_m = np.mean(img, axis=(0, 1))
+    feat_v = np.var(img, axis=(0, 1))
+    feat = np.append(feat_m, feat_v)
+    return feat
+
+# Extract 2-dimensional features consisting of average gray color as well as variance
+
+
+def extract_features_2d(img):
+    feat_m = np.mean(img)
+    feat_v = np.var(img)
+    feat = np.append(feat_m, feat_v)
+    return feat
+
+# Extract features for a given image
+
+
+def extract_img_features(filename):
+    img = load_image(filename)
+    img_patches = img_crop(img, patch_size, patch_size)
+    X = np.asarray([extract_features_2d(img_patches[i])
+                    for i in range(len(img_patches))])
+    return X

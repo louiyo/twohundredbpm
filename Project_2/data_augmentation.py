@@ -51,26 +51,6 @@ def roll(original_imgs, delta):
     return roll_single(imgs[0], int(delta)), roll_single(imgs[1], int(delta))
 
 
-def random_crop(imgs, v):
-    crop_size = int( 16 * round(v*imgs[0].width / 16))
-    size = tf.constant([crop_size, crop_size], dtype=tf.int32)
-    image, gt = img_to_array(imgs[0]), img_to_array(imgs[1])
-
-    combined = tf.concat([image, gt], axis=2)
-    image_shape = tf.shape(image)
-    combined_pad = tf.image.pad_to_bounding_box(
-        combined, 0, 0, image_shape[0], image_shape[1])
-    last_label_dim = tf.shape(gt)[-1]
-    last_image_dim = tf.shape(image)[-1]
-    combined_crop = tf.image.random_crop(
-        combined_pad,
-        size=tf.concat([size, [last_label_dim + last_image_dim]],
-                     axis=0))
-    img_cropped_1 = array_to_img(combined_crop[:, :, :last_image_dim])
-    img_cropped_2 = array_to_img(combined_crop[:, :, last_image_dim:])
-    return img_cropped_1, img_cropped_2
-
-
 def Rotate(imgs, _):
     v = random.randrange(0,180,1)
     img1 = array_to_img(rotate(img_to_array(imgs[0]), v, reshape=False))
@@ -123,8 +103,7 @@ class RandAugment:
         self.n = n
         self.m = m      # [0, 30]
         self.augment_list = augment_list()
-        if(upscale_to_test_size):
-            self.augment_list.append((random_crop, 0.6, 0.9))
+        
 
     def augment(self, imgs):
         # IMPORTANT : imgs should be a tuple containing

@@ -8,8 +8,6 @@ from keras import backend as K
 
 def conv_batch(img, n_filters, batch_norm, activation_fct, kernel_size):
 
-    # Maybe try to add dropout between convolutions instead of outside
-
     # first convolution followed by batch normalization
     c1 = Conv2D(n_filters, kernel_size,
                 kernel_initializer='he_normal', padding='same')(img)
@@ -79,7 +77,7 @@ def build_unet(img, n_filters, dilate,dropout_down, dropout_up,
     else:
         c5 = conv_batch(d4, n_filters*16, batch_norm, activation_fct, kernel_size)
 
-    
+    #bottleneck with dilation
 
 
 
