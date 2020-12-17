@@ -29,13 +29,11 @@ Data augmentation is a recurring trick used in image classification and segmenta
 
 
 ### U-net:
-We implemented state of the art neural network architecture (proposed by Ronneberger et al.) used for semantic image segmentations, in order to predict segment roads and perform classificaiton on each pixel as background or road.
+We implemented state of the art neural network architecture (proposed by Ronneberger et al.) used for semantic image segmentations, in order to segment roads and perform classification on each pixel as background or road.
 
 
 ### Fractal net:
-the fractal model is constructed by sequence of blocks, containing each a convolution and joining layers, between which a pooling operation is done. In our case, this model consists of 4 blocks with 3 convolutional layers each in sequence. It begins with 16 filters in the first layer, a number multiplied by 2 from blocks to blocks. This model return the probability of a patch to be either 1 or 0.
-
-The interesting fact of fractal net over any other construction resides in its ability to transition from shallow to deep during training. Therefore, it allows for a rather quick answer when in "shallow mode" and a more precise answer when in "deep mode". Furthermore, it has proven to be really effective even without data augmentation, which is very costly computationally. All these facts lead us to think about fractal net as an appropriate model for our project. Although, it is originally designed for image classification tasks, we have made an adaptation using patched images.
+An other model available is the fractal model (proposed by Gustav Larsson et al.). It is originally designed for image classification, but with some modifications, we managed to use it in the context of image segmentation. It is arranged in a sequence of blocks, containing each convolutional and joining layers. A pooling operation is performed between each.
 
 
 ### How to run:
@@ -45,20 +43,19 @@ The default parameters for run are (train = True, use_fractal = False, augment =
 * Parameters relative to the choice of the model and training:
 > Train:Wheter to train the model or not, if false the model launches prediction directly from our best model file bestmodel.h5 if unet is used or Fractal_model.h5 if fractal is used
 
-> use_fractal:if true uses fractal network, if false uses Unet
+> use_fractal: if true uses fractal network, if false uses Unet
 
 Parameters relative to the data augmentation :
-> augment:if true augments the training data
+> augment: if true augments the training data
 
-> augment random:if true uses random data augmentation, if false uses the non random data augmentation
+> augment_random: if true uses random data augmentation, if false uses the non random data augmentation
 
-> augment factor: relative to random data augmentation, which is the number of folds training set is increased by random augmentation
+> augment_factor: relative to random data augmentation, which is the number of folds training set is increased by random augmentation
 
 * Parameter for visualization of the results:
 > display_preds: whether to display predictions on some images after predictions or not
 
-##### Files:
-data_agumentation.py fractal_net_py preprocessing.py proj2_helpers.py run.py submissoin_to_mask.py UNet_model.py
+### Files:
 
 * **run.py:** allows to initialize different training parameters train and evaluate the model and make predictions.
 * **ML_project2.ipynb:** Notebook to run the code and get image classifications.
@@ -66,7 +63,6 @@ data_agumentation.py fractal_net_py preprocessing.py proj2_helpers.py run.py sub
 * **UNet_model.py:** Functions to build U-net architecture
 * **fractal_net.py:** Functions to build the fractal architecture 
 * **proj2_helpers.py:** Various helper functions allowing  mainly to load test images, make predictions and make a csv submission.
-
 
 
 ### Libraries and Progamming language:
