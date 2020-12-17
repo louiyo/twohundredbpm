@@ -1,5 +1,8 @@
 ## Project 2:
 
+### Disclaimer:
+We initially started on an ML4Science project, in Olaf Blanke's lab. We spent the majority of the project time span on it, and started the road recognition 3 weeks before the deadline. You will find in this repository a report for the first part, explaining what we did. We believe that we managed to finish the road recognition challenge properly, but it was important to us to include some of the works we did in the first part of the project. 
+
 ### Description:
 We introduce our take on a **segmentation task**, using a **convolutional neural nets** for a classification of roads on Earth satellite images. In one case, we made use of dilated convolutional layers to increase the receptive field of our model without giving up on high resolution which could reduce the accuracy. Using a random data augmentation, we were able to obtain results significantly higher by increasing the dataset size. For purpose of comparison, we constructed two different models based on different architectures.
 
