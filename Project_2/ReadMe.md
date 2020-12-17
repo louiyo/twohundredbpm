@@ -39,29 +39,33 @@ The interesting fact of fractal net over any other construction resides in its a
 
 
 ### How to run:
-Using the ML_project2.ipynb notebook file run the cell containing run() without arguments to launch training for our best model: U-net with dilated bottleneck architecture.\
-The default parameters for run are (train = True, use_fractal = False, augment = False, augment_random = False, augment_factor = 7, dilation = True, display_preds = True)\
-Train:Wheter to train the model or not, if false the model launches prediction directly from our best model file bestmodel.h5 if unet is used or Fractal_model.h5 if fractal is used\
-use_fractal:if true uses fractal network, if false uses Unet\
-augment:if true augments the training data\
-augment random:if true uses random data augmentation, if false uses the non random data augmentation\
-augment factor: relative to random data augmentation, which is the number of folds training set is increased by random augmentation\
-display_preds: whether to display predictions on some images after predictions or not\
+Using the ML_project2.ipynb notebook file run the cell containing run() without arguments to launch training for our best model: U-net with dilated bottleneck architecture.
+The default parameters for run are (train = True, use_fractal = False, augment = False, augment_random = False, augment_factor = 7, dilation = True, display_preds = True)
 
-#### Files:
+* Parameters relative to the choice of the model and training:
+> Train:Wheter to train the model or not, if false the model launches prediction directly from our best model file bestmodel.h5 if unet is used or Fractal_model.h5 if fractal is used
 
-## run.py
-allows to initialize different training parameters train and evaluate the model and make predictions.\
-## ML_project2.ipynb
-Notebook to run the code and get image classifications.\
-## preprocessing.py
-Functions to load training images, convert them in array form, prepare for training by augmenting and building train/test/val sets\
-## UNet_model.py
-Functions to build U-net architecture\
-## fractal_net.py
-Functions to build the fractal architecture\
-## proj2_helpers.py
-Various helper functions allowing  mainly to load test images, make predictions and make a csv submission.\
+> use_fractal:if true uses fractal network, if false uses Unet
+
+Parameters relative to the data augmentation :
+> augment:if true augments the training data
+
+> augment random:if true uses random data augmentation, if false uses the non random data augmentation
+
+> augment factor: relative to random data augmentation, which is the number of folds training set is increased by random augmentation
+
+* Parameter for visualization of the results:
+> display_preds: whether to display predictions on some images after predictions or not
+
+##### Files:
+data_agumentation.py fractal_net_py preprocessing.py proj2_helpers.py run.py submissoin_to_mask.py UNet_model.py
+
+* **run.py:** allows to initialize different training parameters train and evaluate the model and make predictions.
+* **ML_project2.ipynb:** Notebook to run the code and get image classifications.
+* **preprocessing.py:** Functions to load training images, convert them in array form, prepare for training by augmenting and building train/test/val sets
+* **UNet_model.py:** Functions to build U-net architecture
+* **fractal_net.py:** Functions to build the fractal architecture 
+* **proj2_helpers.py:** Various helper functions allowing  mainly to load test images, make predictions and make a csv submission.
 
 
 
