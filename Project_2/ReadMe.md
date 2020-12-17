@@ -38,7 +38,7 @@ the fractal model is constructed by sequence of blocks, containing each a convol
 The interesting fact of fractal net over any other construction resides in its ability to transition from shallow to deep during training. Therefore, it allows for a rather quick answer when in "shallow mode" and a more precise answer when in "deep mode". Furthermore, it has proven to be really effective even without data augmentation, which is very costly computationally. All these facts lead us to think about fractal net as an appropriate model for our project. Although, it is originally designed for image classification tasks, we have made an adaptation using patched images.
 
 
-### How to run:\
+### How to run:
 Using the ML_project2.ipynb notebook file run the cell containing run() without arguments to launch training for our best model: U-net with dilated bottleneck architecture.\
 The default parameters for run are (train = True, use_fractal = False, augment = False, augment_random = False, augment_factor = 7, dilation = True, display_preds = True)\
 Train:Wheter to train the model or not, if false the model launches prediction directly from our best model file bestmodel.h5 if unet is used or Fractal_model.h5 if fractal is used\
@@ -48,19 +48,19 @@ augment random:if true uses random data augmentation, if false uses the non rand
 augment factor: relative to random data augmentation, which is the number of folds training set is increased by random augmentation\
 display_preds: whether to display predictions on some images after predictions or not\
 
-###Files:\
+#### Files:
 
-## run.py\
+## run.py
 allows to initialize different training parameters train and evaluate the model and make predictions.\
-## ML_project2.ipynb\
+## ML_project2.ipynb
 Notebook to run the code and get image classifications.\
-## preprocessing.py\
+## preprocessing.py
 Functions to load training images, convert them in array form, prepare for training by augmenting and building train/test/val sets\
-## UNet_model.py\
+## UNet_model.py
 Functions to build U-net architecture\
-## fractal_net.py\
+## fractal_net.py
 Functions to build the fractal architecture\
-## proj2_helpers.py\
+## proj2_helpers.py
 Various helper functions allowing  mainly to load test images, make predictions and make a csv submission.\
 
 
