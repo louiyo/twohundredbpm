@@ -29,7 +29,7 @@ Data augmentation is a recurring trick used in image classification and segmenta
 
 
 #### U-net:
-U-Net is an architecture for semantic segmentation. It consists of a contracting path and an expansive path. The contracting path follows the typical architecture of a convolutional network. It consists of the repeated application of two 3x3 convolutions (unpadded convolutions), each followed by a rectified linear unit (ReLU) and a 2x2 max pooling operation with stride 2 for down-sampling. At each down-sampling step we double the number of feature channels. Every step in the expansive path consists of an up-sampling of the feature map followed by a 2x2 convolution (“up-convolution”) that halves the number of feature channels, a concatenation with the correspondingly cropped feature map from the contracting path, and two 3x3 convolutions, each followed by a ReLU. The cropping is necessary due to the loss of border pixels in every convolution. At the final layer a 1x1 convolution is used to map each 64-component feature vector to the desired number of classes. In total the network has 23 convolutional layers. 
+We implemented state of the art neural network architecture (proposed by Ronneberger et al.) used for semantic image segmentations, in order to predict segment roads and perform classificaiton on each pixel as background or road.
 
 
 #### Fractal net:
@@ -39,16 +39,30 @@ The interesting fact of fractal net over any other construction resides in its a
 
 
 ### How to run:
+Using the ML_project2.ipynb notebook file run the cell containing run() without arguments to launch training for our best model: U-net with dilated bottleneck architecture.
+The default parameters for run are (train = True, use_fractal = False, augment = False, augment_random = False, augment_factor = 7, dilation = True, display_preds = True)
+Train:Wheter to train the model or not, if false the model launches prediction directly from our best model file bestmodel.h5
+use_fractal:if true uses fractal network, if false uses Unet
+augment:if true augments the training data
+augment random:if true uses random data augmentation, if false uses the non random data augmentation
+augment factor: relative to random data augmentation, which is the number of folds training set is increased by random augmentation
+display_preds: whether to display predictions on some images after predictions or not
 
-There is two different way of running the code. The first method consists of doing it on your computer (in local), but you should be aware that neural networks are very **costly computationally**. Hence, if you don't have a powerful computer (with a decent GPU), you should use the second method. You can either choose to run everything, from loading of the data to the construction of the submission file, by using this command in your terminal (make sure you are in the right repository):
+##### Files:
+data_agumentation.py fractal_net_py preprocessing.py proj2_helpers.py run.py submissoin_to_mask.py UNet_model.py
+##run.py
+allows to initialize different training parameters train and evaluate the model and make predictions.
+##ML_project2.ipynb
+Notebook to run the code and get image classifications.
+##preprocessing.py
+Functions to load training images, convert them in array form, prepare for training by augmenting and building train/test/val sets
+##UNet_model.py
+Functions to build U-net architecture
+##fractal_net.py
+Functions to build the fractal architecture 
+##proj2_helpers.py
+Various helper functions allowing  mainly to load test images, make predictions and make a csv submission.
 
-<pre><code> python3 run.py </code></pre>
-
-By default, it will run with the U-net model. Also you use the fractal model by setting *use_fractal* to True. Last, you can either train the model (which takes time) or directly predict on the evaluation set by changing the value of the boolean parameter *train*. In this manner, you can either choose to train the model, use the fractal model (by default it will use the U-net), and upscale the training data to the test size. However, we don't recomment to upscale to test size for training of models, as it needs then more time to compute.
-
-An other way of running the code can be on **Google Colab** with *ML_project2.ipynb*. To this extent, wou will be allowed to make use of an hosted server of Google, provided with a fine GPU.
-
-Also, to use the GPU, you have to enter the **runtime** menu, and then click on **modifying runtime type**. After that, you should be able to select **GPU** for running the code. 
 
 
 ### Libraries and Progamming language:
