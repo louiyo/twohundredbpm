@@ -22,6 +22,77 @@ from skimage.util import random_noise
 from keras.preprocessing.image import load_img, img_to_array, array_to_img
 import tensorflow as tf
 
+def non_randaug(images,gt_images):
+    '''
+        Perform non random augmentations consisting of
+        25,45,90,180,270 degree rotations with left to right image flips
+
+        Parameters:
+        img: satellite images
+        get_img: respective groundtruth for each satellite image
+    '''
+    imgs_aug = []
+    gt_imgs_aug = []
+
+    for (img_, gt_img_) in zip(images, gt_images):
+
+        imgs_aug.append(img_to_array(img_))
+        gt_imgs_aug.append(img_to_array(gt_img_))
+
+        #flipping
+        img_flip = img_.transpose(PIL.Image.FLIP_LEFT_RIGHT)
+        gt_flip = gt_img_.transpose(PIL.Image.FLIP_LEFT_RIGHT)
+        imgs_aug.append(img_to_array(img_flip))
+        gt_imgs_aug.append(img_to_array(gt_flip))
+
+        #rotating
+        img45=img_.rotate(45)
+        gt45=gt_img_.rotate(45)
+        imgs_aug.append(img_to_array(img45))
+        gt_imgs_aug.append(img_to_array(gt45))
+
+        img90=img_.rotate(90)
+        gt90=gt_img_.rotate(90)
+        imgs_aug.append(img_to_array(img90))
+        gt_imgs_aug.append(img_to_array(gt90))
+
+        img270=img_.rotate(270)
+        gt270=gt_img_.rotate(270)
+        imgs_aug.append(img_to_array(img270))
+        gt_imgs_aug.append(img_to_array(gt270))
+
+        img180=img_.rotate(180)
+        gt180=gt_img_.rotate(180)
+        imgs_aug.append(img_to_array(img180))
+        gt_imgs_aug.append(img_to_array(gt180))
+
+
+        img25=img_.rotate(25)
+        gt25=gt_img_.rotate(25)
+        imgs_aug.append(img_to_array(img25))
+        gt_imgs_aug.append(img_to_array(gt25))
+
+    return imgs_aug,gt_imgs_aug
+
+def randaug(images, gt_images,augment_factor = 6):
+    """Perform random augmentation on images and associated groundtruths."""
+    rdaug = RandAugment(6, 12)
+
+    imgs_aug = []
+    gt_imgs_aug = []
+
+    for (img_, gt_img_) in zip(images, gt_images):
+
+        for j in range(augment_factor):
+            img, gt_img = img_.copy(), gt_img_.copy()
+            img, gt_img = rdaug.augment((img, gt_img))
+            img, gt_img = img_to_array(img), img_to_array(gt_img)
+
+            imgs_aug.append(img)
+            gt_imgs_aug.append(gt_img)
+
+    return imgs_aug, gt_imgs_aug
+
 
 def add_noise(imgs, v):
     img = img_to_array(imgs[0])
@@ -32,9 +103,9 @@ def add_noise(imgs, v):
 
 def roll(original_imgs, delta):
     """Roll an image sideways."""
-    
+
     delta = random.randint(75, 300)
-    
+
     def roll_single(img, delta):
         xsize, ysize = img.size
         part1 = img.crop((0, 0, delta, ysize))
@@ -64,7 +135,7 @@ def AutoContrast(imgs, _):
 
 def Flip(imgs, _):
     return PIL.ImageOps.mirror(imgs[0]), PIL.ImageOps.mirror(imgs[1])
-    
+
 
 def Contrast(imgs, v):  # [0.1,1.9]
     assert 0.5 <= v <= 1.0
@@ -99,11 +170,11 @@ def augment_list():  # Operations and their ranges
 
 
 class RandAugment:
-    def __init__(self, n, m, upscale_to_test_size = False):
+    def __init__(self, n, m):
         self.n = n
         self.m = m      # [0, 30]
         self.augment_list = augment_list()
-        
+
 
     def augment(self, imgs):
         # IMPORTANT : imgs should be a tuple containing

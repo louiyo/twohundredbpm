@@ -7,35 +7,30 @@ TRAIN_IMG_SIZE = 400
 
 def preprocess(root_dir='./training/',
                ratio=0.15,
-               save_imgs = False):
+               save_imgs = False,
+               augment = True,
+               augment_random = True,
+               augment_factor = 6):
+
     images_dir = root_dir + 'images/'
     gt_dir = root_dir + 'groundtruth/'
     files = os.listdir(images_dir)
 
     images = [PIL.Image.open(images_dir + img) for img in files]
     gt_images = [PIL.Image.open(gt_dir + img) for img in files]
-    rdaug = RandAugment(6, 12)
-    
-    imgs_aug = []
-    gt_imgs_aug = []
 
-    for (img_, gt_img_, file_, i) in zip(images, gt_images, files, range(len(images))):
-        print("processing image ", i+1, "/", len(images))
-        
-        imgs_aug.append(img_to_array(img_))
-        gt_imgs_aug.append(img_to_array(gt_img_))
-            
-        """for j in range(6):
-            img, gt_img = img_.copy(), gt_img_.copy()
-            img, gt_img = rdaug.augment((img, gt_img))
-            img, gt_img = img_to_array(img), img_to_array(gt_img)
-            
-            imgs_aug.append(img)
-            gt_imgs_aug.append(gt_img)"""
+    if augment:
+        if (augment_random):
+            imgs_aug, gt_imgs_aug = randaug(images, gt_images,augment_factor)
+        else:
+            imgs_aug, gt_imgs_aug = non_randaug(images,gt_images)
 
-    
-    X_train, X_test, Y_train, Y_test = train_test_split(imgs_aug, gt_imgs_aug,
-                                                        test_size=ratio, random_state=2020)
+        X_train, X_test, Y_train, Y_test = train_test_split(imgs_aug, gt_imgs_aug,
+                                                            test_size=ratio, random_state=2020)
+    else:
+        X_train, X_test, Y_train, Y_test = train_test_split(images, gt_images,
+                                                            test_size=ratio, random_state=2020)
+
     X_train = np.stack(X_train, axis = 0)
     X_test = np.stack(X_test, axis = 0)
     Y_train = np.stack(Y_train, axis = 0) / 255.0
