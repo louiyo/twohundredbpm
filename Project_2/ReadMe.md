@@ -12,7 +12,7 @@ The evaluation set contains 50 images of 608x608 pixels, on which predictions ar
 
 ### Methods and Models:
 
-#### Data Augmentation:
+### Data Augmentation:
 Data augmentation is a recurring trick used in image classification and segmentation tasks as it allows the model to be trained on datasets multiple times their original size while starting with the same data. Data augmentations uses transformations such as rotations or rolling in order to present to the model images that, despite coming from the same original, are considered as two separate data points and offer two distinct learning outcomes. Here is a list of the every transformation available in our project:
 
 <ol>
@@ -28,11 +28,11 @@ Data augmentation is a recurring trick used in image classification and segmenta
 </ol>
 
 
-#### U-net:
+### U-net:
 We implemented state of the art neural network architecture (proposed by Ronneberger et al.) used for semantic image segmentations, in order to predict segment roads and perform classificaiton on each pixel as background or road.
 
 
-#### Fractal net:
+### Fractal net:
 the fractal model is constructed by sequence of blocks, containing each a convolution and joining layers, between which a pooling operation is done. In our case, this model consists of 4 blocks with 3 convolutional layers each in sequence. It begins with 16 filters in the first layer, a number multiplied by 2 from blocks to blocks. This model return the probability of a patch to be either 1 or 0.
 
 The interesting fact of fractal net over any other construction resides in its ability to transition from shallow to deep during training. Therefore, it allows for a rather quick answer when in "shallow mode" and a more precise answer when in "deep mode". Furthermore, it has proven to be really effective even without data augmentation, which is very costly computationally. All these facts lead us to think about fractal net as an appropriate model for our project. Although, it is originally designed for image classification tasks, we have made an adaptation using patched images.
@@ -48,19 +48,19 @@ augment random:if true uses random data augmentation, if false uses the non rand
 augment factor: relative to random data augmentation, which is the number of folds training set is increased by random augmentation
 display_preds: whether to display predictions on some images after predictions or not
 
-##### Files:
-data_agumentation.py fractal_net_py preprocessing.py proj2_helpers.py run.py submissoin_to_mask.py UNet_model.py
+###Files:
+
 ##run.py
 allows to initialize different training parameters train and evaluate the model and make predictions.
-##ML_project2.ipynb
+## ML_project2.ipynb
 Notebook to run the code and get image classifications.
-##preprocessing.py
+## preprocessing.py
 Functions to load training images, convert them in array form, prepare for training by augmenting and building train/test/val sets
-##UNet_model.py
+## UNet_model.py
 Functions to build U-net architecture
-##fractal_net.py
+## fractal_net.py
 Functions to build the fractal architecture 
-##proj2_helpers.py
+## proj2_helpers.py
 Various helper functions allowing  mainly to load test images, make predictions and make a csv submission.
 
 
