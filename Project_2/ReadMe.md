@@ -41,7 +41,7 @@ The interesting fact of fractal net over any other construction resides in its a
 ### How to run:
 Using the ML_project2.ipynb notebook file run the cell containing run() without arguments to launch training for our best model: U-net with dilated bottleneck architecture.
 The default parameters for run are (train = True, use_fractal = False, augment = False, augment_random = False, augment_factor = 7, dilation = True, display_preds = True)
-Train:Wheter to train the model or not, if false the model launches prediction directly from our best model file bestmodel.h5
+Train:Wheter to train the model or not, if false the model launches prediction directly from our best model file bestmodel.h5 if unet is used or Fractal_model.h5 if fractal is used
 use_fractal:if true uses fractal network, if false uses Unet
 augment:if true augments the training data
 augment random:if true uses random data augmentation, if false uses the non random data augmentation
